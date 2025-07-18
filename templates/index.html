@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dice Roller</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f8f8f8;
+      color: #333;
+    }
+    form {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      width: 200px;
+      margin-top: 0.25rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin-right: 0.5rem;
+      margin-top: 1rem;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      padding: 1rem;
+      background-color: #e0f7fa;
+      border-left: 5px solid #0097a7;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎲 Dice Roller</h1>
+
+  <form method="post">
+    <label for="username">Your Username:</label><br>
+    <input type="text" id="username" name="username" value="{{ username or '' }}" required><br>
+
+    <button type="submit" name="roll_type" value="Attack">Attack</button>
+    <button type="submit" name="roll_type" value="Defend">Defend</button>
+  </form>
+
+  {% if result %}
+    <div class="result">
+      <p><strong>{{ username }}</strong> chose <strong>{{ roll_type }}</strong> and got a <strong>{{ result }}</strong>!</p>
+    </div>
+  {% endif %}
+</body>
+</html>
