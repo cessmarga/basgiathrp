@@ -5,12 +5,12 @@ import os
 
 app = Flask(__name__)
 
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1395671663265452062/Vx_J6VzEXJp6AO7KSnjXU6gn1WIVzd3zMTv0ks4j7Wy8ZSncuq1pxdEAW0-rGWJQ1aoH"  # Replace with your actual webhook
+webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
 
 def send_to_discord(username, roll_type, result):
         message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
         payload = {"content": message}
-        requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        requests.post(webhook_url, json=payload)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
