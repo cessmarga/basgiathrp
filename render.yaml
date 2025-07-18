@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: flask-app
+    env: python
+    buildCommand: pip install poetry && poetry install
+    startCommand: poetry run python main.py
+    envVars:
+      - key: PORT
+        value: 10000  # or whatever port your app uses
