@@ -98,7 +98,7 @@ def index():
 
                 # Step 3: If success, add random_value to odds
                 if result == "Success":
-                    final_odds = round(odds + random_value/10, 5)
+                    final_odds = min(max(round(odds + random_value/10, 5), 10), 90)
                     update_odds(username, roll_type, final_odds)
                 else:
                     final_odds = odds  # No change on fail
