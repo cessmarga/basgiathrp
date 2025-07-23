@@ -1,0 +1,5 @@
+# Ignore the original working database
+user.db
+
+# Track a committed copy
+!data/user.db
