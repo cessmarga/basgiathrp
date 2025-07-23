@@ -163,20 +163,25 @@ def add_user():
 
         if graduate == "Yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Graduate Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+        
         if leadership == "Yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Leadership Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+
         if frontlines == "Yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Frontlines Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+        
         if fighter_type == 'Offensive': attack_odds += 5; defend_odds-=5
         if fighter_type == 'Defensive': defend_odds += 5; attack_odds-=5
         if fighter_type == 'Non-combatant': attack_odds = 30; defend_odds = 40
         flash(f'{username} Fighter Type Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+        
         if magic_type == "Mental": defend_odds+=2
         if magic_type == "Elemental": attack_odds+=2
         if magic_type == "Physical": defend_odds+=1; attack_odds+=1
         flash(f'{username} Magic Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+        
         if pre_war_status == "Legacy": defend_odds+=2; attack_odds+=2
-        flash(f'{username} Magic Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+        flash(f'{username} Legacy Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
 
         if age < 30:
@@ -219,4 +224,4 @@ def delete_user(user_id):
     conn.close()
 
     flash('User deleted successfully.', 'success')
-    return redirect(url_for('admin_users'))
+    return redirect(url_for('admin_dashboard.html', users=users))
