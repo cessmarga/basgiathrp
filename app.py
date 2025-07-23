@@ -161,11 +161,11 @@ def add_user():
         attack_odds, defend_odds = base_odds.get(member_group, (0.5, 0.5))  # fallback default
         flash(f'{username} Base Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
 
-        if graduate=="Yes": attack_odds += 5; defend_odds += 5
+        if graduate == "Yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Graduate Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
-        if leadership="Yes": attack_odds += 5; defend_odds += 5
+        if leadership == "Yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Leadership Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
-        if frontlines="Yes": attack_odds += 5; defend_odds += 5
+        if frontlines == "Yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Frontlines Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         if fighter_type == 'Offensive': attack_odds += 5; defend_odds-=5
         if fighter_type == 'Defensive': defend_odds += 5; attack_odds-=5
