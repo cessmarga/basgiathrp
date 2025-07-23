@@ -74,6 +74,7 @@ def index():
     roll_type = None
     random_value = None
     user_odds = None
+    final_odds = None
 
     if request.method == "POST":
         roll_type = request.form.get("roll_type")
