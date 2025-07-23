@@ -156,7 +156,7 @@ def add_user():
         if frontlines: attack_odds += 5; defend_odds += 5
         if fighter_type == 'Offensive': attack_odds += 5; defend_odds-=5
         if fighter_type == 'Defensive': defend_odds += 5; attack_odds-=5
-        if fighter_type == 'Non-combatant': attack_odds = 30; defend_odds = 30
+        if fighter_type == 'Non-combatant': attack_odds = 30; defend_odds = 40
         if magic_type == "Mental": defend_odds+=2
         if magic_type == "Elemental": attack_odds+=2
         if magic_type == "Physical": defend_odds+=1; attack_odds+=1
