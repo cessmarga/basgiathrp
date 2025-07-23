@@ -14,13 +14,21 @@ def send_to_discord(username, roll_type, result):
     for attempt in range(3):  # Try up to 3 times
         response = requests.post(webhook_url, json=payload)
         if response.status_code == 429:
-            retry_after = response.json().get("retry_after", 2)
-            print(f"🔁 Rate limited. Retrying after {retry_after} seconds...")
-            time.sleep(retry_after / 1000)  # Discord sometimes returns ms
+            try:
+                data = response.json()
+                retry_after = data.get("retry_after", 2000)  # fallback ms
+            except ValueError:
+                retry_after = 2000  # default to 2s if not JSON
+            print(f"🔁 Rate limited. Retrying after {retry_after}ms...")
+            time.sleep(retry_after / 1000)
         else:
-            response.raise_for_status()
-            print("✅ Webhook sent!")
-            return
+            try:
+                response.raise_for_status()
+                print("✅ Webhook sent!")
+                return
+            except requests.HTTPError as e:
+                print(f"❌ HTTP error: {e} - {response.text}")
+                return
     raise Exception("❌ Failed to send webhook after 3 retries")
 
 @app.route("/", methods=["GET", "POST"])
