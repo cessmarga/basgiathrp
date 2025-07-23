@@ -131,10 +131,10 @@ def add_user():
     if request.method == 'POST':
         username = request.form['username']
         member_group = request.form['member_group']
-        graduate = request.form['graduate'] == 'yes'
-        leadership = request.form['leadership'] == 'yes'
+        graduate = request.form['graduate']
+        leadership = request.form['leadership']
         pre_war_status = request.form['pre_war_status']
-        frontlines = request.form['frontlines'] == 'yes'
+        frontlines = request.form['frontlines']
         age = int(request.form['age'])
         magic_type = request.form['magic_type']
         fighter_type = request.form['fighter_type']
