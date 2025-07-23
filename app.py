@@ -140,8 +140,16 @@ def add_user():
         fighter_type = request.form['fighter_type']
 
         # === Calculate default odds ===
-        attack_odds = 50
-        defend_odds = 50
+        base_odds = {
+            "Rider": (0.65, 0.65),
+            "Flier": (0.6, 0.6),
+            "Infantry": (0.55, 0.6),
+            "Healer": (0.4, 0.6),
+            "Scribe": (0.35, 0.5),
+            "Civilian": (0.3, 0.4),
+            "Outlier": (0.5, 0.5),
+        }
+        attack_odds, defend_odds = base_odds.get(member_group, (0.5, 0.5))  # fallback default
 
         if graduate: attack_odds += 5; defend_odds += 5
         if leadership: attack_odds += 5; defend_odds += 5
@@ -149,6 +157,10 @@ def add_user():
         if fighter_type == 'Offensive': attack_odds += 5; defend_odds-=5
         if fighter_type == 'Defensive': defend_odds += 5; attack_odds-=5
         if fighter_type == 'Non-combatant': attack_odds = 30; defend_odds = 30
+        if magic_type == "Mental": defend_odds+=2
+        if magic_type == "Elemental": attack_odds+=2
+        if magic_type == "Physical": defend_odds+=1; attack_odds+=1
+        
 
         if age < 30:
             attack_odds += 5
