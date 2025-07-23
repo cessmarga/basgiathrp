@@ -172,7 +172,7 @@ def add_user():
         
         if fighter_type == 'Offensive': attack_odds += 5; defend_odds-=5
         if fighter_type == 'Defensive': defend_odds += 5; attack_odds-=5
-        if fighter_type == 'Non-combatant': attack_odds = 30; defend_odds = 40
+        if fighter_type == 'Non-combatant': attack_odds -= 10; defend_odds -= 10
         flash(f'{username} Fighter Type Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
         if magic_type == "Mental": defend_odds+=2
@@ -180,14 +180,14 @@ def add_user():
         if magic_type == "Physical": defend_odds+=1; attack_odds+=1
         flash(f'{username} Magic Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
-        if pre_war_status == "Legacy": defend_odds+=2; attack_odds+=2
+        if pre_war_status == "Trained": defend_odds+=2; attack_odds+=2
         flash(f'{username} Legacy Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
 
-        if age < 30:
+        if age < 40:
             attack_odds += 5
             defend_odds -= 2
-        elif age > 30:
+        elif age > 40:
             attack_odds -= 2
             defend_odds += 5
 
