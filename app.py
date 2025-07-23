@@ -123,3 +123,69 @@ def admin_dashboard():
         return redirect(url_for('admin_login'))
     return render_template('admin_dashboard.html')
 
+@app.route('/admin/add_user', methods=['GET', 'POST'])
+def add_user():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    if request.method == 'POST':
+        username = request.form['username']
+        member_group = request.form['member_group']
+        graduate = request.form['graduate'] == 'yes'
+        leadership = request.form['leadership'] == 'yes'
+        pre_war_status = request.form['pre_war_status']
+        frontlines = request.form['frontlines'] == 'yes'
+        age = int(request.form['age'])
+        magic_type = request.form['magic_type']
+        fighter_type = request.form['fighter_type']
+
+        # === Calculate default odds ===
+        attack_odds = 50
+        defend_odds = 50
+
+        if graduate: attack_odds += 5; defend_odds += 5
+        if leadership: attack_odds += 5; defend_odds += 5
+        if frontlines: attack_odds += 5; defend_odds += 5
+        if fighter_type == 'Offensive': attack_odds += 5; defend_odds-=5
+        if fighter_type == 'Defensive': defend_odds += 5; attack_odds-=5
+        if fighter_type == 'Non-combatant': attack_odds = 30; defend_odds = 30
+
+        if age < 30:
+            attack_odds += 5
+            defend_odds -= 2
+        elif age > 30:
+            attack_odds -= 2
+            defend_odds += 5
+
+        # Clamp odds between 10 and 100
+        attack_odds = min(max(attack_odds, 10), 90)
+        defend_odds = min(max(defend_odds, 10), 90)
+
+        # Save to database
+        conn = sqlite3.connect('users.db')
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO users (username, member_group, graduate, leadership, pre_war_status, frontlines, age, magic_type, fighter_type, attack_odds, defend_odds)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (username, member_group, graduate, leadership, pre_war_status, frontlines, age, magic_type, fighter_type, attack_odds, defend_odds))
+        conn.commit()
+        conn.close()
+
+        flash(f'User {username} added with Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+        return redirect(url_for('add_user'))
+
+    return render_template('add_user.html')
+
+@app.route('/admin/users')
+def admin_users():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    conn = sqlite3.connect('users.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute('SELECT * FROM users ORDER BY username')
+    users = c.fetchall()
+    conn.close()
+
+    return render_template('admin_users.html', users=users)
