@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, render_template, session, flash
+from flask import Flask, request, redirect, url_for, render_template, session, flash, send_file
 import time
 import random
 import os
@@ -56,19 +56,19 @@ def get_user_odds(username, roll_type):
             return float(row[1])
     return None
 
-def update_odds(username, roll_type, delta=0.05):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
+#def update_odds(username, roll_type, delta=0.05):
+#    conn = sqlite3.connect('users.db')
+#    cursor = conn.cursor()
 
-    column = "attack_odds" if roll_type.lower() == "attack" else "defend_odds"
-    cursor.execute(f"""
-        UPDATE users
-        SET {column} = MIN({column} + ?, 0.95)
-        WHERE username = ?
-    """, (delta, username))
+    # column = "attack_odds" if roll_type.lower() == "attack" else "defend_odds"
+    # cursor.execute(f"""
+    #     UPDATE users
+    #     SET {column} = MIN({column} + ?, 0.95)
+    #     WHERE username = ?
+    # """, (delta, username))
 
-    conn.commit()
-    conn.close()
+    # conn.commit()
+    # conn.close()
 
 # ─── Flask Routes ──────────────────────────────────────────────────────────────
 @app.route("/", methods=["GET", "POST"])
@@ -225,3 +225,12 @@ def delete_user(user_id):
 
     flash('User deleted successfully.', 'success')
     return redirect(url_for('admin_dashboard'))
+
+@app.route('/download-db')
+def download_db():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    try:
+        return send_file('user.db', as_attachment=True)
+    except FileNotFoundError:
+        return "Database file not found.", 404
