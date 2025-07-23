@@ -3,6 +3,7 @@ import time
 import random
 import requests
 import os
+import sqlite3
 
 app = Flask(__name__)
 
@@ -51,6 +52,21 @@ def send_to_discord(username, roll_type, result):
 
     raise Exception("❌ Failed to send webhook after 3 retries")
 
+def get_user_odds(username, roll_type):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT attack_odds, defend_odds FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if row:
+        if roll_type.lower() == 'attack':
+            return float(row[0])
+        elif roll_type.lower() == 'defend':
+            return float(row[1])
+    return None
+
 @app.route("/", methods=["GET", "POST"])
 def index():
         result = None
@@ -62,7 +78,11 @@ def index():
             username = request.form.get("username", "").strip()
 
             if username:
-                result = "Success" if random.random() < 0.5 else "Fail"
+                odds = get_user_odds(username, roll_type)
+                if odds is None:
+                    result = "User not found or invalid roll type"
+                else:
+                    result = "Success" if random.random() < odds else "Fail"                
                 send_to_discord(username, roll_type, result)
 
         return render_template("index.html", result=result, username=username, roll_type=roll_type)
