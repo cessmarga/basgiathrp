@@ -121,7 +121,15 @@ def admin_logout():
 def admin_dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-    return render_template('admin_dashboard.html')
+
+    conn = sqlite3.connect('users.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute('SELECT * FROM users ORDER BY username')
+    users = c.fetchall()
+    conn.close()
+    
+    return render_template('admin_dashboard.html', users=users)
 
 @app.route('/admin/add_user', methods=['GET', 'POST'])
 def add_user():
@@ -187,20 +195,6 @@ def add_user():
         return redirect(url_for('add_user'))
 
     return render_template('add_user.html')
-
-@app.route('/admin/users')
-def admin_users():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
-
-    conn = sqlite3.connect('users.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute('SELECT * FROM users ORDER BY username')
-    users = c.fetchall()
-    conn.close()
-
-    return render_template('admin_users.html', users=users)
 
 @app.route('/admin/delete/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
