@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head><title>Add User</title></head>
+<body>
+  <h2>Add New User</h2>
+  <p><a href="{{ url_for('admin_dashboard') }}">← Back to Dashboard</a></p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul>
+      {% for category, message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST">
+    Username: <input type="text" name="username" required><br><br>
+
+    Member Group:
+    <select name="member_group">
+      <option>Rider</option>
+      <option>Flier</option>
+      <option>Civilian</option>
+      <option>Infantry</option>
+      <option>Healer</option>
+      <option>Scribe</option>
+      <option>Outlier</option>
+    </select><br><br>
+
+    War College Graduate:
+    <select name="graduate">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select><br><br>
+
+    Leadership Position:
+    <select name="leadership">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select><br><br>
+
+    Pre-War College Status:
+    <select name="pre_war_status">
+      <option>Civilian</option>
+      <option>Legacy</option>
+    </select><br><br>
+
+    Frontlines Exposure:
+    <select name="frontlines">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select><br><br>
+
+    Age: <input type="number" name="age" min="10" required><br><br>
+
+    Magic Type: <input type="text" name="magic_type"><br><br>
+
+    Type of Fighter:
+    <select name="fighter_type">
+      <option>Offensive</option>
+      <option>Defensive</option>
+      <option>Balanced</option>
+      <option>Non-combatant</option>
+    </select><br><br>
+
+    <input type="submit" value="Add User">
+  </form>
+</body>
+</html>
