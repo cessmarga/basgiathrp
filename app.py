@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, request, redirect, url_for, render_template, session, flash
 import time
 import random
 import os
@@ -9,6 +9,11 @@ import sqlite3
 
 # ─── Flask Setup ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
+app.secret_key = 'your_super_secret_key'  # Needed for sessions
+
+# Hardcoded admin credentials for now
+ADMIN_USERNAME = 'empyrean'
+ADMIN_PASSWORD = 'staffusethis123!'
 
 # ─── Discord Bot Setup (Disabled) ──────────────────────────────────────────────
 # intents = discord.Intents.default()
@@ -92,3 +97,29 @@ def index():
 if __name__ == "__main__":
     # Thread(target=run_bot).start()
     app.run(debug=True)
+
+# ─── Admin Things for the Sparring Proctor ─────────────────────────────────────
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Invalid credentials', 'error')
+    return render_template('admin_login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    flash('Logged out', 'info')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin')
+def admin_dashboard():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    return render_template('admin_dashboard.html')
+
