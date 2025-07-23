@@ -141,13 +141,13 @@ def add_user():
 
         # === Calculate default odds ===
         base_odds = {
-            "Rider": (0.65, 0.65),
-            "Flier": (0.6, 0.6),
-            "Infantry": (0.55, 0.6),
-            "Healer": (0.4, 0.6),
-            "Scribe": (0.35, 0.5),
-            "Civilian": (0.3, 0.4),
-            "Outlier": (0.5, 0.5),
+            "Rider": (65, 65),
+            "Flier": (60, 60),
+            "Infantry": (55, 60),
+            "Healer": (40, 60),
+            "Scribe": (35, 50),
+            "Civilian": (30, 40),
+            "Outlier": (50, 50),
         }
         attack_odds, defend_odds = base_odds.get(member_group, (0.5, 0.5))  # fallback default
 
