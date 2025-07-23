@@ -6,6 +6,9 @@ import os
 app = Flask(__name__)
 
 webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+@app.route("/envcheck")
+def check_env():
+    return f"DISCORD_WEBHOOK_URL = {os.getenv('DISCORD_WEBHOOK_URL')}"
 
 def send_to_discord(username, roll_type, result):
         message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
