@@ -157,17 +157,25 @@ def add_user():
             "Civilian": (30, 40),
             "Outlier": (50, 50),
         }
+        flash(f'{username} Base Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         attack_odds, defend_odds = base_odds.get(member_group, (0.5, 0.5))  # fallback default
 
         if graduate: attack_odds += 5; defend_odds += 5
+        flash(f'{username} Graduate Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         if leadership: attack_odds += 5; defend_odds += 5
+        flash(f'{username} Leadership Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         if frontlines: attack_odds += 5; defend_odds += 5
+        flash(f'{username} Frontlines Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         if fighter_type == 'Offensive': attack_odds += 5; defend_odds-=5
         if fighter_type == 'Defensive': defend_odds += 5; attack_odds-=5
         if fighter_type == 'Non-combatant': attack_odds = 30; defend_odds = 40
+        flash(f'{username} Fighter Type Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         if magic_type == "Mental": defend_odds+=2
         if magic_type == "Elemental": attack_odds+=2
         if magic_type == "Physical": defend_odds+=1; attack_odds+=1
+        flash(f'{username} Magic Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+        if pre_war_status == "Legacy": defend_odds+=2; attack_odds+=2
+        flash(f'{username} Magic Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
 
         if age < 30:
@@ -176,6 +184,8 @@ def add_user():
         elif age > 30:
             attack_odds -= 2
             defend_odds += 5
+
+        flash(f'{username} Age Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
 
         # Clamp odds between 10 and 100
         attack_odds = min(max(attack_odds, 10), 90)
