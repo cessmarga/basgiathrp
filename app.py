@@ -1,31 +1,27 @@
 from flask import Flask, render_template, request
+import time
 import random
 import requests
 import os
 
 app = Flask(__name__)
 
-webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
-
-@app.route("/test_webhook")
-def test_webhook():
-    import os
-    import requests
-
-    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
-    payload = {"content": "🚨 Test webhook from Render deployment!"}
-
-    try:
-        r = requests.post(webhook_url, json=payload)
-        r.raise_for_status()
-        return "✅ Webhook sent!"
-    except Exception as e:
-        return f"❌ Webhook failed: {str(e)}"
-
 def send_to_discord(username, roll_type, result):
-        message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
-        payload = {"content": message}
-        requests.post(webhook_url, json=payload)
+    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+    message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
+    payload = {"content": message}
+
+    for attempt in range(3):  # Try up to 3 times
+        response = requests.post(webhook_url, json=payload)
+        if response.status_code == 429:
+            retry_after = response.json().get("retry_after", 2)
+            print(f"🔁 Rate limited. Retrying after {retry_after} seconds...")
+            time.sleep(retry_after / 1000)  # Discord sometimes returns ms
+        else:
+            response.raise_for_status()
+            print("✅ Webhook sent!")
+            return
+    raise Exception("❌ Failed to send webhook after 3 retries")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
