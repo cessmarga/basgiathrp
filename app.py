@@ -17,7 +17,7 @@ def send_to_discord(username, roll_type, result):
 
     print("Sending payload:", payload)
     if os.getenv("FLASK_ENV") == "development":
-    print("Webhook URL:", webhook_url)
+        print("Webhook URL:", webhook_url)
     print(f"{response.status_code} - {response.text}")
 
     for attempt in range(3):  # Try up to 3 times
