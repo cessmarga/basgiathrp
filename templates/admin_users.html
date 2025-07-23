@@ -37,10 +37,10 @@
             <tr>
                 <td>{{ user['username'] }}</td>
                 <td>{{ user['member_group'] }}</td>
-                <td>{{ 'Yes' if user['graduate'] else 'No' }}</td>
-                <td>{{ 'Yes' if user['leadership'] else 'No' }}</td>
+                <td>{{ user['graduate'] }}</td>
+                <td>{{ user['leadership'] }}</td>
                 <td>{{ user['pre_war_status'] }}</td>
-                <td>{{ 'Yes' if user['frontlines'] else 'No' }}</td>
+                <td>{{ user['frontlines'] }}</td>
                 <td>{{ user['age'] }}</td>
                 <td>{{ user['magic_type'] }}</td>
                 <td>{{ user['fighter_type'] }}</td>
