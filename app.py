@@ -157,8 +157,9 @@ def add_user():
             "Civilian": (30, 40),
             "Outlier": (50, 50),
         }
-        flash(f'{username} Base Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+        
         attack_odds, defend_odds = base_odds.get(member_group, (0.5, 0.5))  # fallback default
+        flash(f'{username} Base Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
 
         if graduate: attack_odds += 5; defend_odds += 5
         flash(f'{username} Graduate Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
