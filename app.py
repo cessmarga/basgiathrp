@@ -76,6 +76,8 @@ def index():
     result = None
     username = None
     roll_type = None
+    random_value = None
+    user_odds = None
 
     if request.method == "POST":
         roll_type = request.form.get("roll_type")
@@ -83,15 +85,25 @@ def index():
 
         if username:
             odds = get_user_odds(username, roll_type)
+
             if odds is None:
                 result = "User not found or invalid roll type"
             else:
-                result = "Success" if random.random() < odds else "Fail"
-                if result == "Success":
-                    update_odds(username, roll_type)
-                # send_to_discord(username, roll_type, result)
+                user_odds = {
+                    "attack": get_user_odds(username, "attack"),
+                    "defend": get_user_odds(username, "defend")
+                }
+                random_value = round(random.random(), 4)
+                result = "Success" if random_value < (odds / 100) else "Fail"
+                # if result == "Success":
+                #     update_odds(username, roll_type)
 
-    return render_template("index.html", result=result, username=username, roll_type=roll_type)
+    return render_template("index.html",
+                           result=result,
+                           username=username,
+                           roll_type=roll_type,
+                           random_value=random_value,
+                           user_odds=user_odds)
 
 # ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
 if __name__ == "__main__":
@@ -231,6 +243,6 @@ def download_db():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
     try:
-        return send_file('user.db', as_attachment=True)
+        return send_file('users.db', as_attachment=True)
     except FileNotFoundError:
         return "Database file not found.", 404
