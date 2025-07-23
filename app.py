@@ -22,7 +22,13 @@ def send_to_discord(username, roll_type, result):
 
     for attempt in range(3):  # Try up to 3 times
         try:
-            response = requests.post(webhook_url, json=payload)
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                              "(KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+                "Content-Type": "application/json"
+            }
+
+            response = requests.post(webhook_url, json=payload, headers=headers)
             print(f"{response.status_code} - {response.text}")
             
             if response.status_code == 204:
