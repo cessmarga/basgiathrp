@@ -224,4 +224,4 @@ def delete_user(user_id):
     conn.close()
 
     flash('User deleted successfully.', 'success')
-    return redirect(url_for('admin_dashboard.html', users=users))
+    return redirect(url_for('admin_dashboard'))
