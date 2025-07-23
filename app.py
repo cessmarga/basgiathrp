@@ -6,9 +6,21 @@ import os
 app = Flask(__name__)
 
 webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
-@app.route("/envcheck")
-def check_env():
-    return f"DISCORD_WEBHOOK_URL = {os.getenv('DISCORD_WEBHOOK_URL')}"
+
+@app.route("/test_webhook")
+def test_webhook():
+    import os
+    import requests
+
+    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+    payload = {"content": "🚨 Test webhook from Render deployment!"}
+
+    try:
+        r = requests.post(webhook_url, json=payload)
+        r.raise_for_status()
+        return "✅ Webhook sent!"
+    except Exception as e:
+        return f"❌ Webhook failed: {str(e)}"
 
 def send_to_discord(username, roll_type, result):
         message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
