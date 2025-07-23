@@ -164,14 +164,14 @@ def add_user():
         if graduate == "yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Graduate Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
-        if leadership == "yes": attack_odds += 5; defend_odds += 5
+        if leadership == "yes": attack_odds += 2; defend_odds += 2
         flash(f'{username} Leadership Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
 
         if frontlines == "yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Frontlines Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
-        if fighter_type == 'Offensive': attack_odds += 5; defend_odds-=5
-        if fighter_type == 'Defensive': defend_odds += 5; attack_odds-=5
+        if fighter_type == 'Offensive': attack_odds += 2; defend_odds-=5
+        if fighter_type == 'Defensive': defend_odds += 2; attack_odds-=5
         if fighter_type == 'Non-combatant': attack_odds -= 10; defend_odds -= 10
         flash(f'{username} Fighter Type Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
@@ -185,11 +185,11 @@ def add_user():
         
 
         if age < 40:
-            attack_odds += 5
+            attack_odds += 1
             defend_odds -= 2
         elif age > 40:
             attack_odds -= 2
-            defend_odds += 5
+            defend_odds += 1
 
         flash(f'{username} Age Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
 
