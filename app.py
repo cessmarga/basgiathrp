@@ -201,3 +201,17 @@ def admin_users():
     conn.close()
 
     return render_template('admin_users.html', users=users)
+
+@app.route('/admin/delete/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+
+    flash('User deleted successfully.', 'success')
+    return redirect(url_for('admin_users'))
