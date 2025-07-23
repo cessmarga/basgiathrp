@@ -56,19 +56,15 @@ def get_user_odds(username, roll_type):
             return float(row[1])
     return None
 
-#def update_odds(username, roll_type, delta=0.05):
-#    conn = sqlite3.connect('users.db')
-#    cursor = conn.cursor()
-
-    # column = "attack_odds" if roll_type.lower() == "attack" else "defend_odds"
-    # cursor.execute(f"""
-    #     UPDATE users
-    #     SET {column} = MIN({column} + ?, 0.95)
-    #     WHERE username = ?
-    # """, (delta, username))
-
-    # conn.commit()
-    # conn.close()
+def update_odds(username, roll_type, new_odds):
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        f"UPDATE users SET {roll_type}_odds = ? WHERE username = ?",
+        (new_odds, username)
+    )
+    conn.commit()
+    conn.close()
 
 # ─── Flask Routes ──────────────────────────────────────────────────────────────
 @app.route("/", methods=["GET", "POST"])
@@ -93,16 +89,25 @@ def index():
                     "attack": get_user_odds(username, "attack"),
                     "defend": get_user_odds(username, "defend")
                 }
+                # Step 1: Generate random value
                 random_value = round(random.random(), 4)
+
+                # Step 2: Determine success
                 result = "Success" if random_value < (odds / 100) else "Fail"
-                # if result == "Success":
-                #     update_odds(username, roll_type)
+
+                # Step 3: If success, add random_value to odds
+                if result == "Success":
+                    final_odds = round(odds + random_value/10, 5)
+                    update_odds(username, roll_type, final_odds)
+                else:
+                    final_odds = odds  # No change on fail
 
     return render_template("index.html",
                            result=result,
                            username=username,
                            roll_type=roll_type,
                            random_value=random_value,
+                           final_odds=final_odds,
                            user_odds=user_odds)
 
 # ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
