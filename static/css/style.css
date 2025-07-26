@@ -147,6 +147,10 @@ body {
 	font-weight: 300;
 	letter-spacing: .02em;
 	color: var(--text-medCon);
+	display:flex;
+	flex-direction:column;
+	justify-content:center;
+	align-items:center;
 	text-align: center;
 	background: var(--bg-img), var(--bg-grad);
 	background-repeat: no-repeat;
