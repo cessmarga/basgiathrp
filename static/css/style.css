@@ -198,6 +198,10 @@ a:hover {
 
 table, tr, td {
 	color: var(--text-clear); 
+	background: var(--bg-1);
+	border: 1px dotted var(--border-1);
+	border-collapse: collapse;
+	padding: 8px;
 }
 .flex-a {
 	display: flex;
