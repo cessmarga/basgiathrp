@@ -299,3 +299,66 @@ def increment_age():
 
     flash("All user ages have been increased by 1.", "success")
     return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/edit_user/<int:user_id>', methods=['POST'])
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+
+    # Get updated fields from form
+    user.username = request.form['username']
+    user.member_group = request.form['member_group']
+    user.graduate = request.form['graduate']
+    user.leadership = request.form['leadership']
+    user.frontlines = request.form['frontlines']
+    user.disability = request.form['disability']
+    user.magic_type = request.form['magic_type']
+    user.fighter_type = request.form['fighter_type']
+
+    # Keep existing (non-editable) values
+    age = user.age
+    pre_war_status = user.pre_war_status
+
+    # === Recompute Odds ===
+    base_odds = {
+        "Rider": (65, 65),
+        "Flier": (60, 60),
+        "Infantry": (55, 60),
+        "Healer": (40, 60),
+        "Scribe": (35, 50),
+        "Civilian": (30, 40),
+        "Outlier": (50, 50),
+    }
+
+    attack_odds, defend_odds = base_odds.get(user.member_group, (0.5, 0.5))
+
+    if user.graduate == "yes": attack_odds += 5; defend_odds += 5
+    if user.leadership == "yes": attack_odds += 2; defend_odds += 2
+    if user.frontlines == "yes": attack_odds += 5; defend_odds += 5
+    if user.disability == "yes": attack_odds -= 3; defend_odds -= 3
+
+    if user.fighter_type == 'Offensive': attack_odds += 2; defend_odds -= 5
+    if user.fighter_type == 'Defensive': defend_odds += 2; attack_odds -= 5
+    if user.fighter_type == 'Non-combatant': attack_odds -= 10; defend_odds -= 10
+
+    if user.magic_type == "Mental": defend_odds += 2
+    if user.magic_type == "Elemental": attack_odds += 2
+    if user.magic_type == "Physical": defend_odds += 1; attack_odds += 1
+
+    if pre_war_status == "Trained": defend_odds += 2; attack_odds += 2
+    if pre_war_status == "Untrained": defend_odds -= 1; attack_odds -= 1
+
+    if age < 40:
+        attack_odds += 1
+        defend_odds -= 2
+    elif age > 40:
+        attack_odds -= 2
+        defend_odds += 1
+
+    # Clamp odds between 10 and 90
+    user.attack_odds = min(max(attack_odds, 10), 90)
+    user.defend_odds = min(max(defend_odds, 10), 90)
+
+    db.session.commit()
+    flash(f'{user.username} updated successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
