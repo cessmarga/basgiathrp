@@ -23,18 +23,18 @@
       
       <h2>Welcome, Admin</h2>
 
-      <div style="display: flex; gap: 10px; align-items:center; justify-content: center;">
-            <form action="{{ url_for('add_user') }}" method="GET" style="margin-bottom: 10px;">
-              <button type="submit" class="btn btn-success button-large">➕ Add Users</button>
-            </form>
-            <form action="{{ url_for('increment_age') }}" method="POST" onsubmit="return confirm('Are you ABSOLUTELY sure we\'re moving the timeline to the NEXT YEAR?\nLIKE VERY SURE?');">
-              <button type="submit" class="btn btn-danger btn-sm button-large">📅 Enter the Next Year</button>
-            </form>
-                <div style="align-items: right;">
-                    <form action="{{ url_for('admin_logout') }}" method="GET" style="display: inline;">
+      <div style="display: flex; gap: 10px; align-items:center; justify-content: space-between; margin-bottom: 10px;">
+            <div style="display: flex; gap: 10px;">
+                  <form action="{{ url_for('add_user') }}" method="GET">
+                    <button type="submit" class="btn btn-success button-large">➕ Add Users</button>
+                  </form>
+                  <form action="{{ url_for('increment_age') }}" method="POST" onsubmit="return confirm('Are you ABSOLUTELY sure we\'re moving the timeline to the NEXT YEAR?\nLIKE VERY SURE?');">
+                    <button type="submit" class="btn btn-danger btn-sm button-large">📅 Enter the Next Year</button>
+                  </form>
+            </div>
+                  <form action="{{ url_for('admin_logout') }}" method="GET" style="display: inline;">
                       <button type="submit" class="btn btn-secondary button-large">🚪 Logout</button>
-                    </form>
-                </div>
+                  </form>
       </div>
             
       <table class="tablebasic">
