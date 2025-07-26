@@ -1,8 +1,8 @@
 from flask import Flask, request, redirect, url_for, render_template, session, flash, send_file
+from flask_sqlalchemy import SQLAlchemy
 import time
 import random
 import os
-import sqlite3
 # import discord
 # import asyncio
 # from threading import Thread
@@ -10,6 +10,25 @@ import sqlite3
 # ─── Flask Setup ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key'  # Needed for sessions
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+    member_group = db.Column(db.String)
+    graduate = db.Column(db.String)
+    leadership = db.Column(db.String)
+    pre_war_status = db.Column(db.String)
+    frontlines = db.Column(db.String)
+    age = db.Column(db.Integer)
+    magic_type = db.Column(db.String)
+    fighter_type = db.Column(db.String)
+    attack_odds = db.Column(db.Float)
+    defend_odds = db.Column(db.Float)
 
 # Hardcoded admin credentials for now
 ADMIN_USERNAME = 'empyrean'
@@ -42,29 +61,16 @@ ADMIN_PASSWORD = 'staffusethis123!'
 
 # ─── Odds System ────────────────────────────────────────────────────────────────
 def get_user_odds(username, roll_type):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT attack_odds, defend_odds FROM users WHERE username = ?", (username,))
-    row = cursor.fetchone()
-    conn.close()
-
-    if row:
-        if roll_type.lower() == 'attack':
-            return float(row[0])
-        elif roll_type.lower() == 'defend':
-            return float(row[1])
-    return None
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return None
+    return getattr(user, f"{roll_type.lower()}_odds", None)
 
 def update_odds(username, roll_type, new_odds):
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute(
-        f"UPDATE users SET {roll_type}_odds = ? WHERE username = ?",
-        (new_odds, username)
-    )
-    conn.commit()
-    conn.close()
+    user = User.query.filter_by(username=username).first()
+    if user:
+        setattr(user, f"{roll_type.lower()}_odds", new_odds)
+        db.session.commit()
 
 # ─── Flask Routes ──────────────────────────────────────────────────────────────
 @app.route("/", methods=["GET", "POST"])
@@ -140,13 +146,7 @@ def admin_dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
 
-    conn = sqlite3.connect('users.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute('SELECT * FROM users ORDER BY username')
-    users = c.fetchall()
-    conn.close()
-    
+    users = User.query.order_by(User.username).all()
     return render_template('admin_dashboard.html', users=users)
 
 @app.route('/admin/add_user', methods=['GET', 'POST'])
@@ -216,14 +216,21 @@ def add_user():
         defend_odds = min(max(defend_odds, 10), 90)
 
         # Save to database
-        conn = sqlite3.connect('users.db')
-        c = conn.cursor()
-        c.execute('''
-            INSERT INTO users (username, member_group, graduate, leadership, pre_war_status, frontlines, age, magic_type, fighter_type, attack_odds, defend_odds)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (username, member_group, graduate, leadership, pre_war_status, frontlines, age, magic_type, fighter_type, attack_odds, defend_odds))
-        conn.commit()
-        conn.close()
+        user = User(
+            username=username,
+            member_group=member_group,
+            graduate=graduate,
+            leadership=leadership,
+            pre_war_status=pre_war_status,
+            frontlines=frontlines,
+            age=age,
+            magic_type=magic_type,
+            fighter_type=fighter_type,
+            attack_odds=attack_odds,
+            defend_odds=defend_odds
+        )
+        db.session.add(user)
+        db.session.commit()
 
         flash(f'User {username} added with Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         return redirect(url_for('add_user'))
@@ -235,13 +242,11 @@ def delete_user(user_id):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
 
-    conn = sqlite3.connect('users.db')
-    c = conn.cursor()
-    c.execute('DELETE FROM users WHERE id = ?', (user_id,))
-    conn.commit()
-    conn.close()
-
-    flash('User deleted successfully.', 'success')
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/download-db')
