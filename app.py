@@ -84,7 +84,7 @@ def update_odds(username, roll_type, random_value):
         total = min(max(total, 10), 90)  # Clamp between 10 and 90
 
         # Adjust only the success value so that total stays in range
-        new_success = total - base_odds
+        new_success = round(total - base_odds, 4)
         setattr(user, f"{roll_type.lower()}_success", new_success)
         
         db.session.commit()
