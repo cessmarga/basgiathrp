@@ -30,7 +30,7 @@ class User(db.Model):
     age = db.Column(db.Integer)
     magic_type = db.Column(db.String)
     fighter_type = db.Column(db.String)
-    atttack_success = db.Column(db.Float)
+    attack_success = db.Column(db.Float)
     defend_success = db.Column(db.Float)
     attack_odds = db.Column(db.Float)
     defend_odds = db.Column(db.Float)
