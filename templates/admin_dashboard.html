@@ -115,7 +115,7 @@
             
                 // Replace actions cell with Save form (includes hidden inputs for each field)
                 cells[14].innerHTML = `
-                    <form action="/edit_user/${userId}" method="POST">
+                    <form action="/admin/edit_user/${userId}" method="POST">
                         <input type="hidden" name="member_group" value="">
                         <input type="hidden" name="graduate" value="">
                         <input type="hidden" name="leadership" value="">
@@ -131,9 +131,14 @@
             
             // Helper to build <select> with preselected value
             function buildSelect(name, selectedValue, options) {
-                return `<select name="${name}" class="forminput">
-                    ${options.map(opt => `<option value="${opt}" ${opt === selectedValue ? 'selected' : ''}>${opt}</option>`).join('')}
-                </select>`;
+                let select = `<select name="${name}" class="form-select form-select-sm">`;
+                options.forEach(option => {
+                    const isSelected = option === selectedValue ? 'selected' : '';
+                    const displayLabel = option.charAt(0).toUpperCase() + option.slice(1); // Capitalize
+                    select += `<option value="${option}" ${isSelected}>${displayLabel}</option>`;
+                });
+                select += `</select>`;
+                return select;
             }
             
             // This function syncs <select> values into hidden inputs before form submit
