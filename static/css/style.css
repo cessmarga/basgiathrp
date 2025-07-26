@@ -156,6 +156,14 @@ body {
 	background-blend-mode: var(--bg-blend);
 	counter-reset: navCount recentTopics catTitle;
 }
+
+main {
+	background: var(--bg-4);
+	width: 60%;
+	border-radius: 10px
+	
+}
+
 .muffler {
 	position: fixed;
 	top: 0;
