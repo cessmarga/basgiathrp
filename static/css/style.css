@@ -17,7 +17,7 @@
 	--text-med: #808080;
 
     /* shared backgrounds */
-	--bg-img: url(https://files.jcink.net/uploads2/basgiathrp/background/minimalizm_art_gory_6.jpg);
+	--bg-img: url("https://files.jcink.net/uploads2/basgiathrp/background/minimalizm_art_gory_6.jpg");
 
 	--bg-blend: multiply;
 
