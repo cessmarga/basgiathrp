@@ -196,11 +196,10 @@ a:hover {
    Table Styles
 *****************************************/
 
-table, tr, td {
+table, tr, td, th {
 	color: var(--text-clear); 
 	background: var(--bg-1);
 	border: 1px dotted var(--text-clear);
-	padding: 10px;
 }
 .flex-a {
 	display: flex;
@@ -227,7 +226,6 @@ table, tr, td {
 	color: var(--text-clear); 
 	background: var(--bg-1);
 	border: 1px dotted var(--text-clear);
-	padding: 10px;
 }
 
 /****************************************
