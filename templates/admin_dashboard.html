@@ -30,7 +30,9 @@
                 <th>Age</th>
                 <th>Magic</th>
                 <th>Fighter</th>
+                <th>Attack Modifier</th>
                 <th>Attack %</th>
+                <th>Defend Modifier</th>
                 <th>Defend %</th>
                 <th>Actions</th>
             </tr>
@@ -50,7 +52,7 @@
                 <td>{{ user['fighter_type'] }}</td>
                 <td>{{ user['attack_success'] }}%</td>
                 <td>{{ user['attack_odds'] }}%</td>
-                <td>{{ user['defend_success'] }}%</td>
+                <td>{{ user['defense_success'] }}%</td>
                 <td>{{ user['defend_odds'] }}%</td>
                 <td>
                   <form action="{{ url_for('delete_user', user_id=user['id']) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
