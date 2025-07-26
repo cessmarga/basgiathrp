@@ -17,8 +17,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class User(db.Model):
+    __tablename__ = 'users'
+    
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, unique=True, nullable=False)
     member_group = db.Column(db.String)
     graduate = db.Column(db.String)
     leadership = db.Column(db.String)
