@@ -200,6 +200,8 @@ table, tr, td, th {
 	color: var(--text-clear); 
 	background: var(--bg-1);
 	border: 1px dotted var(--text-clear);
+	padding: 10px;
+	border-collapse: collapse;
 }
 .flex-a {
 	display: flex;
@@ -226,6 +228,8 @@ table, tr, td, th {
 	color: var(--text-clear); 
 	background: var(--bg-1);
 	border: 1px dotted var(--text-clear);
+	padding: 10px;
+	border-collapse: collapse;
 }
 
 /****************************************
