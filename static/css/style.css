@@ -225,9 +225,10 @@ table, tr, td {
 }
 .tablebasic {
 	width: 100%;
-	padding: 0;
-	margin: 0px;
-	border: 0px;
+	color: var(--text-clear); 
+	background: var(--bg-1);
+	border: 1px dotted var(--text-clear);
+	padding: 10px;
 }
 
 /****************************************
