@@ -56,8 +56,8 @@
                 <td>{{ user['defend_success'] }}%</td>
                 <td>{{ user['defend_odds'] }}%</td>
                 <td>
-                  <form method="POST" action="{{ url_for('reset_stats', user_id=user.id) }}" style="display:inline;">
-                    <button type="submit" onclick="return confirm('Reset stats for {{ user.username }}?')">Reset</button>
+                  <form action="{{ url_for('reset_user', user_id=user['id']) }}" method="POST" onsubmit="return confirm('Are you sure you want to reset user to base stats?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Reset</button>
                   </form><br>
                   <form action="{{ url_for('delete_user', user_id=user['id']) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
