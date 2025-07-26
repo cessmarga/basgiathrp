@@ -6,6 +6,10 @@
   <title>Add User</title>
 </head>
 <body>
+  <header>
+    <h1><a href="https://basgiathrp-sparring.onrender.com/admin/" class="indx">Basgiath</a></h1>
+    <div class="subtitle"><span>Where only the bold survive, and even the brave are broken</span></div>
+  </header>
   <h2>Add New User</h2>
   <p><a href="{{ url_for('admin_dashboard') }}">← Back to Dashboard</a></p>
 
@@ -19,11 +23,11 @@
     {% endif %}
   {% endwith %}
 
-  <form method="POST">
+  <form method="POST" style="text-align: left;">
     Username: <input type="text" name="username" required><br><br>
 
     Member Group:
-    <select name="member_group">
+    <select name="member_group" class="forminput">
       <option>Rider</option>
       <option>Flier</option>
       <option>Civilian</option>
@@ -34,39 +38,39 @@
     </select><br><br>
 
     War College Graduate:
-    <select name="graduate">
+    <select name="graduate" class="forminput">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select><br><br>
 
     Leadership Position:
-    <select name="leadership">
+    <select name="leadership" class="forminput">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select><br><br>
 
     Pre-War College Education:
-    <select name="pre_war_status">
+    <select name="pre_war_status" class="forminput">
       <option>Trained</option>
       <option>Untrained</option>
     </select><br><br>
 
     Frontlines Exposure:
-    <select name="frontlines">
+    <select name="frontlines" class="forminput">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select><br><br>
 
     Disability/Injury:
-    <select name="disability">
+    <select name="disability" class="forminput">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select><br><br>
 
-    Age: <input type="number" name="age" min="10" required><br><br>
+    Age: <input type="number" name="age" min="10" required class="forminput"><br><br>
 
     Magic Type:
-    <select name="magic_type">
+    <select name="magic_type" class="forminput">
       <option>Mental</option>
       <option>Physical</option>
       <option>Elemental</option>      
@@ -74,14 +78,14 @@
     </select><br><br>
 
     Type of Fighter:
-    <select name="fighter_type">
+    <select name="fighter_type" class="forminput">
       <option>Offensive</option>
       <option>Defensive</option>
       <option>Balanced</option>
       <option>Non-combatant</option>
     </select><br><br>
 
-    <input type="submit" value="Add User">
+    <input type="submit" value="Add User" class="forminput">
   </form>
 </body>
 </html>
