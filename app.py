@@ -248,7 +248,7 @@ def add_user():
             age=age,
             magic_type=magic_type,
             fighter_type=fighter_type,
-            attack_sucess=0,
+            attack_success=0,
             attack_odds=attack_odds,
             defend_success=0,
             defend_odds=defend_odds
