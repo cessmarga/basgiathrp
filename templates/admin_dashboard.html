@@ -17,7 +17,7 @@
         </form>
       </div>
       
-      <form action="{{ url_for('next_year') }}" method="POST" onsubmit="return confirm('Are you ABSOLUTELY sure we\'re moving the timeline to the NEXT YEAR?\nLIKE VERY SURE?');">
+      <form action="{{ url_for('increment_age') }}" method="POST" onsubmit="return confirm('Are you ABSOLUTELY sure we\'re moving the timeline to the NEXT YEAR?\nLIKE VERY SURE?');">
         <button type="submit" class="btn btn-danger btn-sm">📅 Enter the Next Year</button>
       </form>
       
