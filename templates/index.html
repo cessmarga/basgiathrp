@@ -56,10 +56,10 @@
     
       <form method="post">
         <label for="username">Your Username:</label><br>
-        <input type="text" id="username" name="username" value="{{ username or '' }}" required><br>
+        <input type="text" id="username" name="username" value="{{ username or '' }}" required class="forminput"><br>
     
-        <button type="submit forminput" name="roll_type" value="Attack">Attack</button>
-        <button type="submit forminput" name="roll_type" value="Defend">Defend</button>
+        <button type="submit" name="roll_type" value="Attack" class="forminput">Attack</button>
+        <button type="submit" name="roll_type" value="Defend" class="forminput">Defend</button>
       </form>
     
       {% if result %}
