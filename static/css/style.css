@@ -159,10 +159,10 @@ body {
 
 main {
 	background: var(--bg-1);
-	width: 60%;
+	width: 50%;
 	border-radius: 10px;
-	align: center;
-	padding: 10px;
+	align-items: center;
+	padding: 20px;
 }
 
 .muffler {
