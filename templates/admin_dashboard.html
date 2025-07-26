@@ -58,7 +58,7 @@
                 <td>
                   <form action="{{ url_for('reset_user', user_id=user['id']) }}" method="POST" onsubmit="return confirm('Are you sure you want to reset user to base stats?');">
                     <button type="submit" class="btn btn-danger btn-sm">Reset</button>
-                  </form><br>
+                  </form>
                   <form action="{{ url_for('delete_user', user_id=user['id']) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                   </form>
