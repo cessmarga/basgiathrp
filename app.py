@@ -287,11 +287,11 @@ def reset_user(user_id):
         
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/download-db')
-def download_db():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
-    try:
-        return send_file('users.db', as_attachment=True)
-    except FileNotFoundError:
-        return "Database file not found.", 404
+@app.route('/admin/next_year', methods=['POST'])
+def increment_age():
+    conn = get_db_connection()
+    conn.execute('UPDATE users SET age = age + 1')
+    conn.commit()
+    conn.close()
+    flash("All user ages have been increased by 1.", "success")
+    return redirect(url_for('admin_dashboard'))
