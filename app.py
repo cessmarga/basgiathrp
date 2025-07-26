@@ -31,7 +31,7 @@ class User(db.Model):
     magic_type = db.Column(db.String)
     fighter_type = db.Column(db.String)
     attack_success = db.Column(db.Float)
-    defense_success = db.Column(db.Float)
+    defend_success = db.Column(db.Float)
     attack_odds = db.Column(db.Float)
     defend_odds = db.Column(db.Float)
 
@@ -63,10 +63,12 @@ class User(db.Model):
 # ─── Odds System ────────────────────────────────────────────────────────────────
 def get_user_odds(username, roll_type):
     user = User.query.filter_by(username=username).first()
-    if not user:
-        return None
-    return (getattr(user, f"{roll_type.lower()}_odds", None) + getattr(user, f"{roll_type.lower()}_success", None))
-
+    if user:
+        base_odds = getattr(user, f"{roll_type.lower()}_odds", 0.0) or 0.0
+        bonus = getattr(user, f"{roll_type.lower()}_success", 0.0) or 0.0
+        return base_odds + bonus
+    return None
+    
 def update_odds(username, roll_type, random_value):
     user = User.query.filter_by(username=username).first()
     if user:
