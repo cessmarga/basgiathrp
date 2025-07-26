@@ -306,7 +306,6 @@ def edit_user(user_id):
     user = User.query.get_or_404(user_id)
 
     # Get updated fields from form
-    user.username = request.form['username']
     user.member_group = request.form['member_group']
     user.graduate = request.form['graduate']
     user.leadership = request.form['leadership']
