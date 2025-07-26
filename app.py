@@ -289,9 +289,13 @@ def reset_user(user_id):
 
 @app.route('/admin/next_year', methods=['POST'])
 def increment_age():
-    conn = get_db_connection()
-    conn.execute('UPDATE users SET age = age + 1')
-    conn.commit()
-    conn.close()
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    users = User.query.all()
+    for user in users:
+        user.age += 1
+    db.session.commit()
+
     flash("All user ages have been increased by 1.", "success")
     return redirect(url_for('admin_dashboard'))
