@@ -26,9 +26,12 @@ class User(db.Model):
     leadership = db.Column(db.String)
     pre_war_status = db.Column(db.String)
     frontlines = db.Column(db.String)
+    disability = db.Column(db.String)
     age = db.Column(db.Integer)
     magic_type = db.Column(db.String)
     fighter_type = db.Column(db.String)
+    atttack_success = db.Column(db.Float)
+    defend_success = db.Column(db.Float)
     attack_odds = db.Column(db.Float)
     defend_odds = db.Column(db.Float)
 
@@ -62,12 +65,26 @@ def get_user_odds(username, roll_type):
     user = User.query.filter_by(username=username).first()
     if not user:
         return None
-    return getattr(user, f"{roll_type.lower()}_odds", None)
+    return (getattr(user, f"{roll_type.lower()}_odds", None) + getattr(user, f"{roll_type.lower()}_success", None))
 
-def update_odds(username, roll_type, new_odds):
+def update_odds(username, roll_type, random_value):
     user = User.query.filter_by(username=username).first()
     if user:
-        setattr(user, f"{roll_type.lower()}_odds", new_odds)
+        success_attr = f"{roll_type.lower()}_success"
+        current_success = getattr(user, success_attr, 0)
+
+        # Add random value
+        new_success = current_success + (random_value / 10)
+
+        # Combine with base odds and clamp
+        base_odds = getattr(user, f"{roll_type.lower()}_odds", 0)
+        total = base_odds + new_success
+        total = min(max(total, 10), 90)  # Clamp between 10 and 90
+
+        # Adjust only the success value so that total stays in range
+        new_success = total - base_odds
+        setattr(user, f"{roll_type.lower()}_success", new_success)
+        
         db.session.commit()
 
 # ─── Flask Routes ──────────────────────────────────────────────────────────────
@@ -102,8 +119,7 @@ def index():
 
                 # Step 3: If success, add random_value to odds
                 if result == "Success":
-                    final_odds = min(max(round(odds + random_value/10, 5), 10), 90)
-                    update_odds(username, roll_type, final_odds)
+                    update_odds(username, roll_type, random_value)
                 else:
                     final_odds = odds  # No change on fail
 
@@ -159,6 +175,7 @@ def add_user():
         leadership = request.form['leadership']
         pre_war_status = request.form['pre_war_status']
         frontlines = request.form['frontlines']
+        disability = request.form['disability']
         age = int(request.form['age'])
         magic_type = request.form['magic_type']
         fighter_type = request.form['fighter_type']
@@ -185,6 +202,9 @@ def add_user():
 
         if frontlines == "yes": attack_odds += 5; defend_odds += 5
         flash(f'{username} Frontlines Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
+
+        if disability == "yes": attack_odds -= 3; defend_odds -= 3
+        flash(f'{username} Disability Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
         if fighter_type == 'Offensive': attack_odds += 2; defend_odds-=5
         if fighter_type == 'Defensive': defend_odds += 2; attack_odds-=5
@@ -197,6 +217,7 @@ def add_user():
         flash(f'{username} Magic Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
         if pre_war_status == "Trained": defend_odds+=2; attack_odds+=2
+        if pre_war_status == "Untrained": defend_odds-=1; attack_odds-=1
         flash(f'{username} Legacy Odds of Attack {attack_odds}% / Defend {defend_odds}%', 'success')
         
 
@@ -221,6 +242,7 @@ def add_user():
             leadership=leadership,
             pre_war_status=pre_war_status,
             frontlines=frontlines,
+            disability=disability,
             age=age,
             magic_type=magic_type,
             fighter_type=fighter_type,
