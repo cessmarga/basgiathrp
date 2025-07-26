@@ -51,27 +51,29 @@
     <h1><a href="index.php" class="indx">Basgiath</a></h1>
     <div class="subtitle"><span>Where only the bold survive, and even the brave are broken</span></div>
   </header>
-  <h1>🎲 Dice Roller</h1>
-
-  <form method="post">
-    <label for="username">Your Username:</label><br>
-    <input type="text" id="username" name="username" value="{{ username or '' }}" required><br>
-
-    <button type="submit" name="roll_type" value="Attack">Attack</button>
-    <button type="submit" name="roll_type" value="Defend">Defend</button>
-  </form>
-
-  {% if result %}
-    <div class="result">
-      <p><strong>{{ username }}</strong> chose <strong>{{ roll_type }}</strong> and got a <strong>{{ result }}</strong>!</p>
-      <p><strong>Random Roll:</strong> {{ random_value }}</p>
-    </div>
-  {% endif %}
-
-{% if user_odds %}
-  <h3>Current Odds for {{ username }}:</h3>
-  <strong>Attack Odds:</strong> {{ user_odds["attack"] }}%</li>
-  <strong>Defend Odds:</strong> {{ user_odds["defend"] }}%</li>
-{% endif %}
+  <main style="background: var(--bg-4);">
+      <h1>🎲 Dice Roller</h1>
+    
+      <form method="post">
+        <label for="username">Your Username:</label><br>
+        <input type="text" id="username" name="username" value="{{ username or '' }}" required><br>
+    
+        <button type="submit forminput" name="roll_type" value="Attack">Attack</button>
+        <button type="submit forminput" name="roll_type" value="Defend">Defend</button>
+      </form>
+    
+      {% if result %}
+        <div class="result">
+          <p><strong>{{ username }}</strong> chose <strong>{{ roll_type }}</strong> and got a <strong>{{ result }}</strong>!</p>
+          <p><strong>Random Roll:</strong> {{ random_value }}</p>
+        </div>
+      {% endif %}
+    
+    {% if user_odds %}
+      <h3>Current Odds for {{ username }}:</h3>
+      <strong>Attack Odds:</strong> {{ user_odds["attack"] }}%</li>
+      <strong>Defend Odds:</strong> {{ user_odds["defend"] }}%</li>
+    {% endif %}
+    </main>
 </body>
 </html>
