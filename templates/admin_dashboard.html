@@ -135,7 +135,7 @@
                 options.forEach(option => {
                     const isSelected = option === selectedValue ? 'selected' : '';
                     const displayLabel = option.charAt(0).toUpperCase() + option.slice(1); // Capitalize
-                    select += `<option value="${option}" ${isSelected}>${displayLabel}</option>`;
+                    select += `<option value="${option}" ${isSelected} class='forminput'>${displayLabel}</option>`;
                 });
                 select += `</select>`;
                 return select;
