@@ -11,14 +11,23 @@
     </style>
 </head>
 <body>
-    <p style="text-align: right;"><a href="{{ url_for('admin_logout') }}">Logout</a></p>
-    <a href="{{ url_for('download_db') }}">
-        <button type="button" style="text-align: right;">⬇️ Download Database</button>
-    </a>
-    <h2>Welcome, Admin</h2>
-    <p><a href="{{ url_for('add_user') }}">← Add Users</a></p>
+      <div style="text-align: right;">
+        <form action="{{ url_for('admin_logout') }}" method="GET" style="display: inline;">
+          <button type="submit" class="btn btn-secondary">🚪 Logout</button>
+        </form>
+      </div>
+      
+      <form action="{{ url_for('next_year') }}" method="POST" onsubmit="return confirm('Are you ABSOLUTELY sure we\'re moving the timeline to the NEXT YEAR?\nLIKE VERY SURE?');">
+        <button type="submit" class="btn btn-danger btn-sm">📅 Enter the Next Year</button>
+      </form>
+      
+      <h2>Welcome, Admin</h2>
+      
+      <form action="{{ url_for('add_user') }}" method="GET" style="margin-bottom: 10px;">
+        <button type="submit" class="btn btn-success">➕ Add Users</button>
+      </form>
     
-    <table>
+      <table>
         <thead>
             <tr>
                 <th>Username</th>
@@ -66,6 +75,6 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+      </table>
 </body>
 </html>
