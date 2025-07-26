@@ -30,10 +30,6 @@ class User(db.Model):
     attack_odds = db.Column(db.Float)
     defend_odds = db.Column(db.Float)
 
-# Hardcoded admin credentials for now
-ADMIN_USERNAME = 'empyrean'
-ADMIN_PASSWORD = 'staffusethis123!'
-
 # ─── Discord Bot Setup (Disabled) ──────────────────────────────────────────────
 # intents = discord.Intents.default()
 # client = discord.Client(intents=intents)
@@ -128,7 +124,7 @@ def admin_login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        if username == os.getenv('ADMIN_USERNAME') and password == os.getenv('ADMIN_PASSWORD'):
             session['admin_logged_in'] = True
             return redirect(url_for('admin_dashboard'))
         else:
