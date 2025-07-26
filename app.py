@@ -273,6 +273,20 @@ def delete_user(user_id):
         
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/reset/<int:user_id>', methods=['POST'])
+def reset_user(user_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    user = User.query.get(user_id)
+    if user:
+        setattr(user, "attack_success", 0)
+        setattr(user, "defend_success", 0)
+
+        db.session.commit()
+        
+    return redirect(url_for('admin_dashboard'))
+
 @app.route('/download-db')
 def download_db():
     if not session.get('admin_logged_in'):
