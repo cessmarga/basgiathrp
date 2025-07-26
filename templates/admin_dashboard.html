@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head><title>Admin Panel</title>
+<!-- <head><title>Admin Panel</title>
       <style>
         table, th, td {
             border: 1px solid #444;
@@ -9,25 +9,33 @@
         }
         th { background-color: #eee; }
     </style>
+</head> -->
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="shortcut icon" type="image/jpg" href="https://files.jcink.net/uploads2/basgiathrp/basgiath.png" />
+  <title>Admin Panel</title>
 </head>
-<body>
-      <div style="text-align: right;">
+<body style="background-image: url('https://files.jcink.net/uploads2/basgiathrp/background/minimalizm_art_gory_6.jpg');" class="theme-light">
+  <header style="height:100%; padding: 50px">
+    <div style="text-align: right;">
         <form action="{{ url_for('admin_logout') }}" method="GET" style="display: inline;">
-          <button type="submit" class="btn btn-secondary">🚪 Logout</button>
+          <button type="submit" class="btn btn-secondary closed">🚪 Logout</button>
         </form>
-      </div>
-      
-      <form action="{{ url_for('increment_age') }}" method="POST" onsubmit="return confirm('Are you ABSOLUTELY sure we\'re moving the timeline to the NEXT YEAR?\nLIKE VERY SURE?');">
-        <button type="submit" class="btn btn-danger btn-sm">📅 Enter the Next Year</button>
-      </form>
+    </div>
+    <h1><a href="https://basgiathrp-sparring.onrender.com/admin" class="indx">Basgiath</a></h1>
+    <div class="subtitle"><span>Where only the bold survive, and even the brave are broken</span></div>
+  </header>
       
       <h2>Welcome, Admin</h2>
       
       <form action="{{ url_for('add_user') }}" method="GET" style="margin-bottom: 10px;">
-        <button type="submit" class="btn btn-success">➕ Add Users</button>
+        <button type="submit" class="btn btn-success button-large">➕ Add Users</button>
+      </form>
+      <form action="{{ url_for('increment_age') }}" method="POST" onsubmit="return confirm('Are you ABSOLUTELY sure we\'re moving the timeline to the NEXT YEAR?\nLIKE VERY SURE?');">
+        <button type="submit" class="btn btn-danger btn-sm button-large">📅 Enter the Next Year</button>
       </form>
     
-      <table>
+      <table class="tablebasic">
         <thead>
             <tr>
                 <th>Username</th>
