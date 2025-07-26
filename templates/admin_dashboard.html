@@ -88,7 +88,7 @@
         </tbody>
       </table>
 
-<!--       <script>
+      <script>
             function makeRowEditable(button) {
                 const row = button.closest('tr');
                 const userId = row.dataset.userId;
@@ -106,10 +106,10 @@
             
                 // Replace cells with <select> inputs
                 cells[1].innerHTML = buildSelect('member_group', values.member_group, ['Rider', 'Flier', 'Civilian', 'Infantry', 'Healer', 'Scribe', 'Outlier']);
-                cells[2].innerHTML = buildSelect('graduate', values.graduate === 'yes' ? 'yes' : 'no', ['yes', 'no']);
-                cells[3].innerHTML = buildSelect('leadership', values.leadership === 'yes' ? 'yes' : 'no', ['yes', 'no']);
-                cells[5].innerHTML = buildSelect('frontlines', values.frontlines === 'yes' ? 'yes' : 'no', ['yes', 'no']);
-                cells[6].innerHTML = buildSelect('disability', values.disability === 'yes' ? 'yes' : 'no', ['yes', 'no']);
+                cells[2].innerHTML = buildSelect('graduate', values.graduate === 'Yes' ? 'yes' : 'no', ['yes', 'no']);
+                cells[3].innerHTML = buildSelect('leadership', values.leadership === 'Yes' ? 'yes' : 'no', ['yes', 'no']);
+                cells[5].innerHTML = buildSelect('frontlines', values.frontlines === 'Yes' ? 'yes' : 'no', ['yes', 'no']);
+                cells[6].innerHTML = buildSelect('disability', values.disability === 'Yes' ? 'yes' : 'no', ['yes', 'no']);
                 cells[8].innerHTML = buildSelect('magic_type', values.magic_type, ['Mental', 'Physical', 'Elemental', 'None']);
                 cells[9].innerHTML = buildSelect('fighter_type', values.fighter_type, ['Offensive', 'Defensive', 'Balanced', 'Non-combatant']);
             
@@ -149,6 +149,6 @@
                     }
                 });
             }
-            </script> -->
+            </script>
 </body>
 </html>
