@@ -46,7 +46,7 @@ DISCORD_CHANNEL_ID = int(os.getenv("DISCORD_SPARRING_CHANNEL"))
 DISCORD_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 bot_ready = asyncio.Event()
 
-print(f"DISCORD_BOT_TOKEN: {DISCORD_BOT_TOKEN}")
+print(f"DISCORD_BOT_TOKEN: {DISCORD_TOKEN}")
 
 @client.event
 async def on_ready():
