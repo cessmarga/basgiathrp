@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import time
 import random
 import os
+import time
 import requests
 from dotenv import load_dotenv
 
@@ -47,12 +48,27 @@ def send_to_discord(username, roll_type, result):
         "content": f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
     }
 
-    try:
-        response = requests.post(DISCORD_WEBHOOK_URL, json=message)
-        if response.status_code != 204:
-            print(f"⚠️ Failed to send message to Discord: {response.text}")
-    except Exception as e:
-        print(f"❌ Exception while sending to Discord: {e}")
+    max_retries = 3
+    delay = 1  # seconds
+
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(DISCORD_WEBHOOK_URL, json=message)
+
+            # Discord returns 204 No Content on success
+            if response.status_code == 204:
+                return
+            elif response.status_code == 429:
+                retry_after = response.json().get("retry_after", delay)
+                print(f"⏳ Rate limited. Retrying in {retry_after} seconds...")
+                time.sleep(retry_after)
+            else:
+                print(f"⚠️ Discord webhook error: {response.status_code} → {response.text}")
+                return
+
+        except Exception as e:
+            print(f"❌ Exception sending to Discord: {e}")
+            time.sleep(delay)
 
 # ─── Odds System ────────────────────────────────────────────────────────────────
 def get_user_odds(username, roll_type):
