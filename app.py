@@ -3,11 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 import time
 import random
 import os
-# import discord
-# import asyncio
-# from threading import Thread
+import discord
+import asyncio
+from dotenv import load_dotenv
+from threading import Thread
+
 
 # ─── Flask Setup ───────────────────────────────────────────────────────────────
+load_dotenv()
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key'  # Needed for sessions
 
@@ -36,33 +39,36 @@ class User(db.Model):
     defend_odds = db.Column(db.Float)
 
 # ─── Discord Bot Setup (Disabled) ──────────────────────────────────────────────
-# intents = discord.Intents.default()
-# client = discord.Client(intents=intents)
-# DISCORD_CHANNEL_ID = int(os.getenv("DISCORD_CHANNEL_ID", 1234567890))  # Replace later
-# DISCORD_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-# bot_ready = asyncio.Event()
+intents = discord.Intents.default()
+client = discord.Client(intents=intents)
+DISCORD_CHANNEL_ID = int(os.getenv("DISCORD_SPARRING_CHANNEL"))
+DISCORD_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+bot_ready = asyncio.Event()
 
-# @client.event
-# async def on_ready():
-#     print(f"✅ Logged in as {client.user}")
-#     bot_ready.set()
+@client.event
+async def on_ready():
+    print(f"✅ Logged in as {client.user}")
+    bot_ready.set()
 
-# def send_to_discord(username, roll_type, result):
-#     message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
+def send_to_discord(username, roll_type, result):
+    message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
 
-#     async def send():
-#         await bot_ready.wait()
-#         channel = client.get_channel(DISCORD_CHANNEL_ID)
-#         if channel:
-#             await channel.send(message)
-#         else:
-#             print("❌ Could not find Discord channel.")
+    async def send():
+        await bot_ready.wait()
+        channel = client.get_channel(DISCORD_CHANNEL_ID)
+        if channel:
+            await channel.send(message)
+        else:
+            print("❌ Could not find Discord channel.")
 
-#     asyncio.run_coroutine_threadsafe(send(), client.loop)
+    asyncio.run_coroutine_threadsafe(send(), client.loop)
+
+def run_bot():
+    client.run(DISCORD_TOKEN)
 
 # ─── Odds System ────────────────────────────────────────────────────────────────
 def get_user_odds(username, roll_type):
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter(db.func.lower(User.username) == username.lower()).first()
     if user:
         base_odds = getattr(user, f"{roll_type.lower()}_odds", 0.0) or 0.0
         bonus = getattr(user, f"{roll_type.lower()}_success", 0.0) or 0.0
@@ -70,7 +76,7 @@ def get_user_odds(username, roll_type):
     return None
     
 def update_odds(username, roll_type, random_value):
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter(db.func.lower(User.username) == username.lower()).first()
     if user:
         success_attr = f"{roll_type.lower()}_success"
         current_success = getattr(user, success_attr, 0)
@@ -125,6 +131,9 @@ def index():
                 else:
                     final_odds = odds  # No change on fail
 
+                # 🔔 Send result to Discord
+                send_to_discord(username, roll_type, result)
+    
     return render_template("index.html",
                            result=result,
                            username=username,
@@ -135,7 +144,7 @@ def index():
 
 # ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
 if __name__ == "__main__":
-    # Thread(target=run_bot).start()
+    Thread(target=run_bot).start()
     app.run(debug=True)
 
 # ─── Admin Things for the Sparring Proctor ─────────────────────────────────────
