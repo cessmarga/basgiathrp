@@ -3,14 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 import time
 import random
 import os
-import discord
-import asyncio
+import requests
 from dotenv import load_dotenv
-from threading import Thread
-from queue import Queue
 
 # ─── Flask Setup ───────────────────────────────────────────────────────────────
-discord_message_queue = Queue()
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key'  # Needed for sessions
@@ -40,47 +36,23 @@ class User(db.Model):
     defend_odds = db.Column(db.Float)
 
 # ─── Discord Bot Setup (Disabled) ──────────────────────────────────────────────
-intents = discord.Intents.default()
-client = discord.Client(intents=intents)
-DISCORD_CHANNEL_ID = int(os.getenv("DISCORD_SPARRING_CHANNEL"))
-DISCORD_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-bot_ready = asyncio.Event()
-
-print(f"DISCORD_BOT_TOKEN: {DISCORD_TOKEN}")
-
-@client.event
-async def on_ready():
-    print(f"🤖 Logged in as {client.user}")
-    client.loop.create_task(process_discord_queue())
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 def send_to_discord(username, roll_type, result):
-    message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
-    discord_message_queue.put(message)
-
-async def process_discord_queue():
-    await client.wait_until_ready()
-    channel = client.get_channel(DISCORD_CHANNEL_ID)
-    if not channel:
-        print("❌ Discord channel not found. Check DISCORD_CHANNEL_ID.")
+    if not DISCORD_WEBHOOK_URL:
+        print("⚠️ No Discord webhook URL set.")
         return
 
-    print("✅ Discord queue processor started.")
-    while not client.is_closed():
-        while not discord_message_queue.empty():
-            msg = discord_message_queue.get()
-            try:
-                await channel.send(msg)
-                print(f"📨 Sent to Discord: {msg}")
-            except Exception as e:
-                print(f"⚠️ Error sending message to Discord: {e}")
-        await asyncio.sleep(1)
+    message = {
+        "content": f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
+    }
 
-def run_bot():
-    print("🚀 Starting bot...")
     try:
-        client.run(DISCORD_TOKEN)
+        response = requests.post(DISCORD_WEBHOOK_URL, json=message)
+        if response.status_code != 204:
+            print(f"⚠️ Failed to send message to Discord: {response.text}")
     except Exception as e:
-        print(f"❌ Bot failed to start: {e}")
+        print(f"❌ Exception while sending to Discord: {e}")
 
 # ─── Odds System ────────────────────────────────────────────────────────────────
 def get_user_odds(username, roll_type):
@@ -160,7 +132,6 @@ def index():
 
 # ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
 if __name__ == "__main__":
-    Thread(target=run_bot).start()
     app.run(debug=True)
 
 # ─── Admin Things for the Sparring Proctor ─────────────────────────────────────
