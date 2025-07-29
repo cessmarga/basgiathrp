@@ -48,7 +48,7 @@ bot_ready = asyncio.Event()
 
 @client.event
 async def on_ready():
-    print(f'Bot connected as {client.user}')
+    print(f"🤖 Logged in as {client.user}")
     client.loop.create_task(process_discord_queue())
 
 def send_to_discord(username, roll_type, result):
@@ -58,10 +58,19 @@ def send_to_discord(username, roll_type, result):
 async def process_discord_queue():
     await client.wait_until_ready()
     channel = client.get_channel(DISCORD_CHANNEL_ID)
+    if not channel:
+        print("❌ Discord channel not found. Check DISCORD_CHANNEL_ID.")
+        return
+
+    print("✅ Discord queue processor started.")
     while not client.is_closed():
         while not discord_message_queue.empty():
             msg = discord_message_queue.get()
-            await channel.send(msg)
+            try:
+                await channel.send(msg)
+                print(f"📨 Sent to Discord: {msg}")
+            except Exception as e:
+                print(f"⚠️ Error sending message to Discord: {e}")
         await asyncio.sleep(1)
 
 def run_bot():
