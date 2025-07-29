@@ -46,6 +46,8 @@ DISCORD_CHANNEL_ID = int(os.getenv("DISCORD_SPARRING_CHANNEL"))
 DISCORD_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 bot_ready = asyncio.Event()
 
+print(f"DISCORD_BOT_TOKEN: {DISCORD_BOT_TOKEN}")
+
 @client.event
 async def on_ready():
     print(f"🤖 Logged in as {client.user}")
@@ -74,7 +76,11 @@ async def process_discord_queue():
         await asyncio.sleep(1)
 
 def run_bot():
-    client.run(DISCORD_TOKEN)
+    print("🚀 Starting bot...")
+    try:
+        client.run(DISCORD_TOKEN)
+    except Exception as e:
+        print(f"❌ Bot failed to start: {e}")
 
 # ─── Odds System ────────────────────────────────────────────────────────────────
 def get_user_odds(username, roll_type):
