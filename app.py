@@ -7,9 +7,10 @@ import discord
 import asyncio
 from dotenv import load_dotenv
 from threading import Thread
-
+from queue import Queue
 
 # ─── Flask Setup ───────────────────────────────────────────────────────────────
+discord_message_queue = Queue()
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key'  # Needed for sessions
@@ -47,21 +48,21 @@ bot_ready = asyncio.Event()
 
 @client.event
 async def on_ready():
-    print(f"✅ Logged in as {client.user}")
-    bot_ready.set()
+    print(f'Bot connected as {client.user}')
+    client.loop.create_task(process_discord_queue())
 
 def send_to_discord(username, roll_type, result):
     message = f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
+    discord_message_queue.put(message)
 
-    async def send():
-        await bot_ready.wait()
-        channel = client.get_channel(DISCORD_CHANNEL_ID)
-        if channel:
-            await channel.send(message)
-        else:
-            print("❌ Could not find Discord channel.")
-
-    asyncio.run_coroutine_threadsafe(send(), client.loop)
+async def process_discord_queue():
+    await client.wait_until_ready()
+    channel = client.get_channel(DISCORD_CHANNEL_ID)
+    while not client.is_closed():
+        while not discord_message_queue.empty():
+            msg = discord_message_queue.get()
+            await channel.send(msg)
+        await asyncio.sleep(1)
 
 def run_bot():
     client.run(DISCORD_TOKEN)
