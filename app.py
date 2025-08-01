@@ -39,13 +39,13 @@ class User(db.Model):
 # ─── Discord Bot Setup (Disabled) ──────────────────────────────────────────────
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
-def send_to_discord(username, roll_type, result):
+def send_to_discord(username, roll_type, result, random_value):
     if not DISCORD_WEBHOOK_URL:
         print("⚠️ No Discord webhook URL set.")
         return
 
     message = {
-        "content": f"🎲 **{username}** rolled **{roll_type}** → **{result}**"
+        "content": f"🎲 **{username}** rolled **{random_value}** for **{roll_type}** → **{result}**"
     }
 
     max_retries = 3
@@ -136,7 +136,7 @@ def index():
                     final_odds = odds  # No change on fail
 
                 # 🔔 Send result to Discord
-                send_to_discord(username, roll_type, result)
+                send_to_discord(username, roll_type, result, random_value*100)
     
     return render_template("index.html",
                            result=result,
