@@ -117,7 +117,7 @@ def index():
             odds = get_user_odds(username, roll_type)
 
             if odds is None:
-                result = "user not found. Please raise a General Support ticket in #support-and-submissions."
+                result = "user not found. Please raise a General Support ticket."
             else:
                 user_odds = {
                     "attack": get_user_odds(username, "attack"),
