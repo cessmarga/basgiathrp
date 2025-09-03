@@ -142,7 +142,7 @@ def index():
                            result=result,
                            username=username,
                            roll_type=roll_type,
-                           random_value=random_value,
+                           random_value=random_value*100,
                            final_odds=final_odds,
                            user_odds=user_odds)
 
