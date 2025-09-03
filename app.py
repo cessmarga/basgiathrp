@@ -135,14 +135,15 @@ def index():
                 else:
                     final_odds = odds  # No change on fail
 
+                random_value*=100
                 # 🔔 Send result to Discord
-                send_to_discord(username, roll_type, result, random_value*100)
+                send_to_discord(username, roll_type, result, random_value)
     
     return render_template("index.html",
                            result=result,
                            username=username,
                            roll_type=roll_type,
-                           random_value=random_value*100,
+                           random_value=random_value,
                            final_odds=final_odds,
                            user_odds=user_odds)
 
