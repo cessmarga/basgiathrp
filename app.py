@@ -117,7 +117,7 @@ def index():
             odds = get_user_odds(username, roll_type)
 
             if odds is None:
-                result = "user not found. Please reach out to admins."
+                result = "user not found. Please raise a General Support ticket in #support-and-submissions."
             else:
                 user_odds = {
                     "attack": get_user_odds(username, "attack"),
@@ -201,7 +201,7 @@ def add_user():
             "Infantry": (55, 60),
             "Healer": (40, 60),
             "Scribe": (35, 50),
-            "Civilian": (30, 40),
+            "Citizen": (30, 40),
             "Outlier": (50, 50),
         }
         
@@ -337,7 +337,7 @@ def edit_user(user_id):
         "Infantry": (55, 60),
         "Healer": (40, 60),
         "Scribe": (35, 50),
-        "Civilian": (30, 40),
+        "Citizen": (30, 40),
         "Outlier": (50, 50),
     }
 
