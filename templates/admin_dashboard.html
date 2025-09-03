@@ -105,7 +105,7 @@
                 };
             
                 // Replace cells with <select> inputs
-                cells[1].innerHTML = buildSelect('member_group', values.member_group, ['Rider', 'Flier', 'Civilian', 'Infantry', 'Healer', 'Scribe', 'Outlier']);
+                cells[1].innerHTML = buildSelect('member_group', values.member_group, ['Rider', 'Flier', 'Citizen', 'Infantry', 'Healer', 'Scribe', 'Outlier']);
                 cells[2].innerHTML = buildSelect('graduate', values.graduate === 'Yes' ? 'yes' : 'no', ['yes', 'no']);
                 cells[3].innerHTML = buildSelect('leadership', values.leadership === 'Yes' ? 'yes' : 'no', ['yes', 'no']);
                 cells[5].innerHTML = buildSelect('frontlines', values.frontlines === 'Yes' ? 'yes' : 'no', ['yes', 'no']);
