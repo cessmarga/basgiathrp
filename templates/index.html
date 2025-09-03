@@ -5,50 +5,12 @@
   <link rel="shortcut icon" type="image/jpg" href="https://files.jcink.net/uploads2/basgiathrp/basgiath.png" />
   <meta charset="UTF-8">
   <title>Dice Roller</title>
-<!--   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-      background-color: #f8f8f8;
-      color: #333;
-    }
-    form {
-      margin-bottom: 1.5rem;
-    }
-    label {
-      font-weight: bold;
-    }
-    input[type="text"] {
-      padding: 0.5rem;
-      width: 200px;
-      margin-top: 0.25rem;
-    }
-    button {
-      padding: 0.5rem 1rem;
-      margin-right: 0.5rem;
-      margin-top: 1rem;
-      cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .result {
-      padding: 1rem;
-      background-color: #e0f7fa;
-      border-left: 5px solid #0097a7;
-      margin-top: 1rem;
-    }
-  </style> -->
 </head>
 <body style="background-image: url('https://files.jcink.net/uploads2/basgiathrp/background/minimalizm_art_gory_6.jpg');">
 
   <header>
     <a href="index.php"><img src="https://files.jcink.net/uploads2/basgiathrp/dragonblack.png" class="dragon-header" ></a>
-    <h1><a href="index.php" class="indx">Basgiath</a></h1>
+    <h1><a href="index.php" class="indx">Chains</a></h1>
     <div class="subtitle"><span>Where only the bold survive, and even the brave are broken</span></div>
   </header>
   <main class="theme-light">
@@ -65,7 +27,7 @@
       {% if result %}
         <div class="result">
           <p><strong>{{ username }}</strong> chose <strong>{{ roll_type }}</strong> and got a <strong>{{ result }}</strong>!</p>
-          <p><strong>Random Roll:</strong> {{ random_value }}</p>
+          <p><strong>Random Roll:</strong> {{ random_value*100 }}</p>
         </div>
       {% endif %}
     
