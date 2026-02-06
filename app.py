@@ -47,6 +47,7 @@ def send_to_discord(username, roll_type, result, random_value):
     message = {
         "content": f"🎲 **{username}** rolled **{random_value}** for **{roll_type}** → **{result}**"
     }
+    print(message)
 
     max_retries = 3
     delay = 1  # seconds
