@@ -45,32 +45,40 @@ def send_to_discord(username, roll_type, result, random_value):
         return
 
     message = {
-        "content": f"🎲 **{username}** rolled **{random_value}** for **{roll_type}** → **{result}**"
+        "content": f"🎲 **{username}** rolled **{random_value:.2f}** for **{roll_type}** → **{result}**"
     }
 
-
-    max_retries = 3
-    delay = 1  # seconds
+    max_retries = 5
+    delay = 1  # default retry delay in seconds
 
     for attempt in range(max_retries):
         try:
             response = requests.post(DISCORD_WEBHOOK_URL, json=message)
-            print(response.status_code)
+            print(f"[Discord] Status code: {response.status_code}")
 
-            # Discord returns 204 No Content on success
             if response.status_code == 204:
+                # Success
                 return
             elif response.status_code == 429:
-                retry_after = response.json().get("retry_after", delay)
+                # Rate limited
+                retry_after = delay  # fallback
+                try:
+                    data = response.json()
+                    retry_after = data.get("retry_after", delay)
+                except ValueError:
+                    # Discord returned empty or invalid JSON
+                    print("⚠️ 429 received but could not parse retry_after, using default delay.")
                 print(f"⏳ Rate limited. Retrying in {retry_after} seconds...")
                 time.sleep(retry_after)
             else:
                 print(f"⚠️ Discord webhook error: {response.status_code} → {response.text}")
                 return
 
-        except Exception as e:
-            print(f"❌ Exception sending to Discord: {e}")
+        except requests.RequestException as e:
+            print(f"❌ Exception sending to Discord: {e}. Retrying in {delay} seconds...")
             time.sleep(delay)
+
+    print("⚠️ Failed to send message to Discord after max retries.")
 
 # ─── Odds System ────────────────────────────────────────────────────────────────
 def get_user_odds(username, roll_type):
