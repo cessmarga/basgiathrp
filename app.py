@@ -47,7 +47,7 @@ def send_to_discord(username, roll_type, result, random_value):
     message = {
         "content": f"🎲 **{username}** rolled **{random_value}** for **{roll_type}** → **{result}**"
     }
-    print(message)
+
 
     max_retries = 3
     delay = 1  # seconds
@@ -55,6 +55,7 @@ def send_to_discord(username, roll_type, result, random_value):
     for attempt in range(max_retries):
         try:
             response = requests.post(DISCORD_WEBHOOK_URL, json=message)
+            print(response.status_code)
 
             # Discord returns 204 No Content on success
             if response.status_code == 204:
