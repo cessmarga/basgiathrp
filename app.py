@@ -44,42 +44,48 @@ def send_to_discord(username, roll_type, result, random_value):
         print("⚠️ No Discord webhook URL set.")
         return
 
-    message = {
+    payload = {
         "content": f"🎲 **{username}** rolled **{random_value:.2f}** for **{roll_type}** → **{result}**"
     }
 
-    max_retries = 5
-    delay = 1  # default retry delay in seconds
+    max_retries = 3
 
     for attempt in range(max_retries):
-        try:
-            response = requests.post(DISCORD_WEBHOOK_URL, json=message)
-            print(f"[Discord] Status code: {response.status_code}")
+        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
 
-            if response.status_code == 204:
-                # Success
-                return
-            elif response.status_code == 429:
-                # Rate limited
-                retry_after = delay  # fallback
-                try:
-                    data = response.json()
-                    retry_after = data.get("retry_after", delay)
-                except ValueError:
-                    # Discord returned empty or invalid JSON
-                    print("⚠️ 429 received but could not parse retry_after, using default delay.")
-                print(f"⏳ Rate limited. Retrying in {retry_after} seconds...")
-                time.sleep(retry_after)
+        print(f"[Discord] Status code: {response.status_code}")
+
+        if response.status_code == 204:
+            return  # success
+
+        if response.status_code == 429:
+            retry_after = None
+
+            # 1️⃣ Try header FIRST (most reliable)
+            if "Retry-After" in response.headers:
+                retry_after = float(response.headers["Retry-After"])
+                print(retry_after)
+
+            # 2️⃣ Fallback to JSON
             else:
-                print(f"⚠️ Discord webhook error: {response.status_code} → {response.text}")
-                return
+                try:
+                    retry_after = response.json().get("retry_after")
+                except ValueError:
+                    pass
 
-        except requests.RequestException as e:
-            print(f"❌ Exception sending to Discord: {e}. Retrying in {delay} seconds...")
-            time.sleep(delay)
+            # 3️⃣ Absolute fallback (Discord-safe default)
+            if not retry_after:
+                retry_after = 5
 
-    print("⚠️ Failed to send message to Discord after max retries.")
+            print(f"⏳ Rate limited. Waiting {retry_after} seconds...")
+            time.sleep(retry_after)
+            continue
 
+        print(f"⚠️ Discord error {response.status_code}: {response.text}")
+        return
+
+    print("⚠️ Failed to send message after retries.")
+    
 # ─── Odds System ────────────────────────────────────────────────────────────────
 def get_user_odds(username, roll_type):
     user = User.query.filter(db.func.lower(User.username) == username.lower()).first()
