@@ -124,7 +124,8 @@ def index():
                     "defend": get_user_odds(username, "defend")
                 }
                 # Step 1: Generate random value
-                random_value = round(random.random(), 4)
+                #random_value = round(random.random(), 4)
+                random_value = round(random.uniform(0.6, 1.0), 4)
 
                 # Step 2: Determine success
                 result = "Success" if random_value < (odds / 100) else "Fail"
