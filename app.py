@@ -35,6 +35,44 @@ class User(db.Model):
     defend_success = db.Column(db.Float)
     attack_odds = db.Column(db.Float)
     defend_odds = db.Column(db.Float)
+    venin_stage = db.Column(db.String, default="N/A")
+    draw_successes = db.Column(db.Integer, default=0)
+
+# ─── Venin Draw from Earth System ──────────────────────────────────────────────
+VENIN_STAGES = {
+    "Initiate": {
+        "start": 25,
+        "increase": 5,
+        "cap": 45
+    },
+    "Asim": {
+        "start": 50,
+        "increase": 1,
+        "cap": 60
+    },
+    "Sage": {
+        "start": 65,
+        "increase": 0.3,
+        "cap": 80
+    },
+    "Maven": {
+        "start": 90,
+        "increase": 0,
+        "cap": 90
+    }
+}
+
+def get_draw_rate(user):
+    if user.venin_stage == "N/A" or user.venin_stage not in VENIN_STAGES:
+        return None
+
+    stage = VENIN_STAGES[user.venin_stage]
+    draw_rate = stage["start"] + (
+        user.draw_successes * stage["increase"]
+    )
+
+    return min(draw_rate, stage["cap"])
+    
 
 # ─── Discord Bot Setup (Disabled) ──────────────────────────────────────────────
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
@@ -108,12 +146,18 @@ def index():
     random_value = None
     user_odds = None
     final_odds = None
+    draw_prompt = False
+    draw_result = None
+    draw_bonus = 0
 
     if request.method == "POST":
         roll_type = request.form.get("roll_type")
         username = request.form.get("username", "").strip()
 
         if username:
+            user = User.query.filter(
+                db.func.lower(User.username) == username.lower()
+            ).first()
             odds = get_user_odds(username, roll_type)
 
             if odds is None:
@@ -126,8 +170,28 @@ def index():
                 # Step 1: Generate random value
                 random_value = round(random.random(), 4)
 
+                # Step 2: Venin Check
+                if user.venin_stage in VENIN_STAGES:
+                    draw_choice = request.form.get("draw_choice")
+
+                    if draw_choice is None:
+                        draw_prompt = True
+                    else:
+                        if draw_choice == "yes":
+                            draw_rate = get_draw_rate(user)
+                            draw_random = round(random.random(), 4)
+
+                            if draw_random*100 < draw_rate:
+                                draw_result = "Success"
+                                draw_bonus = 15
+
+                                user.draw_successes += 1
+                                db.session.commit()
+                            else:
+                                draw_result = "Fail"
+
                 # Step 2: Determine success
-                result = "Success" if random_value < (odds / 100) else "Fail"
+                result = "Success" if random_value < ((draw_bonus+odds) / 100) else "Fail"
 
                 # Step 3: If success, add random_value to odds
                 if result == "Success":
@@ -145,7 +209,9 @@ def index():
                            roll_type=roll_type,
                            random_value=random_value,
                            final_odds=final_odds,
-                           user_odds=user_odds)
+                           user_odds=user_odds,
+                           draw_prompt=draw_prompt,
+                           draw_result=draw_result)
 
 # ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
 if __name__ == "__main__":
