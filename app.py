@@ -141,7 +141,9 @@ def update_odds(username, roll_type, random_value):
 @app.route("/", methods=["GET", "POST"])
 def index():
 
-    if request.method == "GET":
+    # Only clear a pending combat when the user explicitly
+    # clicks "Roll Again".
+    if request.method == "GET" and request.args.get("reset") == "1":
         session.pop("pending_combat", None)
 
     result = None
@@ -345,10 +347,6 @@ def index():
         draw_choice=draw_choice,
         draw_result=draw_result
     )
-
-# ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
-if __name__ == "__main__":
-    app.run(debug=True)
 
 # ─── Admin Things for the Sparring Proctor ─────────────────────────────────────
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -573,3 +571,7 @@ def edit_user(user_id):
     db.session.commit()
     flash(f'{user.username} updated successfully!', 'success')
     return redirect(url_for('admin_dashboard'))
+
+# ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
+if __name__ == "__main__":
+    app.run(debug=True)
