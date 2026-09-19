@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,36 +7,168 @@
   <meta charset="UTF-8">
   <title>Dice Roller</title>
 </head>
+
 <body style="background-image: url('https://files.jcink.net/uploads2/basgiathrp/background/minimalizm_art_gory_6.jpg');">
 
   <header>
-    <a href="index.php"><img src="https://files.jcink.net/uploads2/basgiathrp/dragonblack.png" class="dragon-header" ></a>
-    <h1><a href="index.php" class="indx">Chains</a></h1>
-    <div class="subtitle"><span>Where only the bold survive, and even the brave are broken</span></div>
+    <a href="index.php">
+      <img src="https://files.jcink.net/uploads2/basgiathrp/dragonblack.png" class="dragon-header">
+    </a>
+
+    <h1>
+      <a href="index.php" class="indx">Chains</a>
+    </h1>
+
+    <div class="subtitle">
+      <span>Where only the bold survive, and even the brave are broken</span>
+    </div>
   </header>
+
   <main class="theme-light">
-      <h1>🎲 Dice Roller</h1>
-    
-      <form method="post">
-        <label for="username">Your Username:</label><br>
-        <input type="text" id="username" name="username" value="{{ username or '' }}" required class="forminput"><br>
-    
-        <button type="submit" name="roll_type" value="Attack" class="forminput">Attack</button>
-        <button type="submit" name="roll_type" value="Defend" class="forminput">Defend</button>
-      </form>
-    
-      {% if result %}
-        <div class="result">
-          <p><strong>{{ username }}</strong> chose <strong>{{ roll_type }}</strong> and got a <strong>{{ result }}</strong>!</p>
-          <p><strong>Random Roll:</strong> {{ random_value }}</p>
-        </div>
-      {% endif %}
-    
-    {% if user_odds %}
-      <h3>Current Odds for {{ username }}:</h3>
-      <strong>Attack Odds:</strong> {{ user_odds["attack"] }}%<br>
-      <strong>Defend Odds:</strong> {{ user_odds["defend"] }}%
+
+    <h1>🎲 Dice Roller</h1>
+
+    <!-- INITIAL ATTACK / DEFEND FORM -->
+    <form method="post">
+
+      <label for="username">Your Username:</label><br>
+
+      <input
+        type="text"
+        id="username"
+        name="username"
+        value="{{ username or '' }}"
+        required
+        class="forminput"
+      ><br>
+
+      <button
+        type="submit"
+        name="roll_type"
+        value="Attack"
+        class="forminput"
+      >
+        Attack
+      </button>
+
+      <button
+        type="submit"
+        name="roll_type"
+        value="Defend"
+        class="forminput"
+      >
+        Defend
+      </button>
+
+    </form>
+
+
+    <!-- VENIN: ASK WHETHER TO DRAW FROM THE EARTH -->
+    {% if pending_draw %}
+
+      <div class="result">
+
+        <h3>🌑 Draw from the Earth?</h3>
+
+        <p>
+          <strong>{{ username }}</strong> has already rolled
+          <strong>{{ random_value }}</strong>.
+        </p>
+
+        <p>
+          Current odds:
+          <strong>{{ odds }}%</strong>
+        </p>
+
+        <p>
+          Drawing from the Earth will increase the odds by
+          <strong>15%</strong>.
+        </p>
+
+        <form method="post">
+
+          <!-- Tell backend this is the second stage -->
+          <input type="hidden" name="draw_from_earth" value="Yes">
+
+          <!-- Preserve the original combat information -->
+          <input type="hidden" name="username" value="{{ username }}">
+          <input type="hidden" name="roll_type" value="{{ roll_type }}">
+          <input type="hidden" name="random_value" value="{{ random_value }}">
+          <input type="hidden" name="odds" value="{{ odds }}">
+
+          <button
+            type="submit"
+            name="draw_choice"
+            value="Yes"
+            class="forminput"
+          >
+            Yes — Draw from the Earth
+          </button>
+
+          <button
+            type="submit"
+            name="draw_choice"
+            value="No"
+            class="forminput"
+          >
+            No
+          </button>
+
+        </form>
+
+      </div>
+
     {% endif %}
-    </main>
+
+
+    <!-- FINAL COMBAT RESULT -->
+    {% if result %}
+
+      <div class="result">
+
+        <p>
+          <strong>{{ username }}</strong>
+          chose <strong>{{ roll_type }}</strong>
+          and got a <strong>{{ result }}</strong>!
+        </p>
+
+        <p>
+          <strong>Random Roll:</strong> {{ random_value }}
+        </p>
+
+        {% if final_odds %}
+          <p>
+            <strong>Final Odds:</strong> {{ final_odds }}%
+          </p>
+        {% endif %}
+
+        {% if draw_from_earth %}
+          <p>
+            🌑 <strong>Draw from the Earth:</strong> Yes
+          </p>
+        {% endif %}
+
+      </div>
+
+    {% endif %}
+
+
+    <!-- CURRENT ODDS -->
+    {% if user_odds %}
+
+      <h3>Current Odds for {{ username }}:</h3>
+
+      <strong>Attack Odds:</strong>
+      {{ user_odds["attack"] }}%
+      <br>
+
+      <strong>Defend Odds:</strong>
+      {{ user_odds["defend"] }}%
+
+    {% endif %}
+
+  </main>
+
 </body>
 </html>
+```
