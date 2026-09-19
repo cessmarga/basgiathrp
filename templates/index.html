@@ -79,14 +79,6 @@
       <div class="result">
 
         <h3>🌑 Draw from the Earth?</h3>
-
-        <p>
-          <strong>{{ username }}</strong>
-          rolled a
-          <strong>{{ "%.2f"|format(random_value) }}</strong>
-          for <strong>{{ roll_type }}</strong>.
-        </p>
-
         <p>
           Current odds:
           <strong>{{ "%.2f"|format(odds) }}%</strong>
@@ -162,8 +154,14 @@
 
       </div>
 
-    {% endif %}
+      <!-- RETURN TO ATTACK / DEFEND -->
+      <form method="get" action="{{ url_for('index') }}">
+        <button type="submit" class="forminput">
+          ⚔️ Roll Again
+        </button>
+      </form>
 
+    {% endif %}
 
     <!-- ================================================================ -->
     <!-- CURRENT ODDS                                                    -->
