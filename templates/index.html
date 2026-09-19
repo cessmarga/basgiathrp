@@ -156,6 +156,8 @@
 
       <!-- RETURN TO ATTACK / DEFEND -->
       <form method="get" action="{{ url_for('index') }}">
+        <input type="hidden" name="reset" value="1">
+      
         <button type="submit" class="forminput">
           ⚔️ Roll Again
         </button>
