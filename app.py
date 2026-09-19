@@ -224,7 +224,7 @@ def index():
 
                 # If the combat succeeded, improve the user's normal odds.
                 if result == "Success":
-                    update_odds(username, roll_type, random_value)
+                    update_odds(username, roll_type, random_value/100)
 
                 # Current odds after the combat result
                 user_odds = {
@@ -237,7 +237,7 @@ def index():
                     username,
                     roll_type,
                     result,
-                    random_value
+                    round(random_value,2)
                 )
 
                 # The pending roll has now been resolved.
@@ -322,7 +322,7 @@ def index():
                         username,
                         roll_type,
                         result,
-                        random_value
+                        round(random_value,2)
                     )
 
         else:
