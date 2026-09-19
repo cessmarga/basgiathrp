@@ -141,6 +141,9 @@ def update_odds(username, roll_type, random_value):
 @app.route("/", methods=["GET", "POST"])
 def index():
 
+    if request.method == "GET":
+        session.pop("pending_combat", None)
+
     result = None
     username = None
     roll_type = None
@@ -149,7 +152,6 @@ def index():
     odds = None
     final_odds = None
 
-    # Venin draw information
     pending_draw = False
     draw_choice = None
     draw_result = None
@@ -216,7 +218,7 @@ def index():
 
                 result = (
                     "Success"
-                    if random_value < final_odds
+                    if random_value < min(final_odds,90)
                     else "Fail"
                 )
 
@@ -303,12 +305,12 @@ def index():
 
                     result = (
                         "Success"
-                        if random_value < final_odds
+                        if random_value < min(final_odds,90)
                         else "Fail"
                     )
 
                     if result == "Success":
-                        update_odds(username, roll_type, random_value)
+                        update_odds(username, roll_type, random_value/100)
 
                     user_odds = {
                         "attack": get_user_odds(username, "Attack"),
