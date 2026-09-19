@@ -83,7 +83,7 @@ def send_to_discord(username, roll_type, result, random_value):
         return
 
     message = {
-        "content": f"🎲 **{username}** rolled **{random_value}** for **{roll_type}** → **{result}**"
+        "content": f"🎲 **{username}** rolled **{round(random_value,2)}** for **{roll_type}** → **{result}**"
     }
 
     max_retries = 3
@@ -237,7 +237,7 @@ def index():
                     username,
                     roll_type,
                     result,
-                    round(random_value,2)
+                    random_value
                 )
 
                 # The pending roll has now been resolved.
@@ -278,7 +278,7 @@ def index():
                 # This exact value will be used even if the Venin draws.
                 # ─────────────────────────────────────────────────────────────
 
-                random_value = random.random() * 100
+                random_value = round(random.random() * 100,2)
 
                 # ─────────────────────────────────────────────────────────────
                 # VENIN CHECK
@@ -322,7 +322,7 @@ def index():
                         username,
                         roll_type,
                         result,
-                        round(random_value,2)
+                        random_value
                     )
 
         else:
