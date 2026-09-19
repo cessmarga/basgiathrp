@@ -140,78 +140,209 @@ def update_odds(username, roll_type, random_value):
 # ─── Flask Routes ──────────────────────────────────────────────────────────────
 @app.route("/", methods=["GET", "POST"])
 def index():
+
     result = None
     username = None
     roll_type = None
     random_value = None
     user_odds = None
+    odds = None
     final_odds = None
-    draw_prompt = False
+
+    # Venin draw information
+    pending_draw = False
+    draw_choice = None
     draw_result = None
     draw_bonus = 0
 
-    if request.method == "POST":
-        roll_type = request.form.get("roll_type")
-        username = request.form.get("username", "").strip()
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECOND STEP: Resolve an existing Venin combat roll
+    # ─────────────────────────────────────────────────────────────────────────
+    if request.method == "POST" and request.form.get("draw_choice"):
 
-        if username:
+        draw_choice = request.form.get("draw_choice")
+
+        # Retrieve the ORIGINAL combat roll from the session.
+        pending_combat = session.get("pending_combat")
+
+        if not pending_combat:
+            result = "No pending combat roll was found. Please start a new roll."
+
+        else:
+            username = pending_combat["username"]
+            roll_type = pending_combat["roll_type"]
+            random_value = pending_combat["random_value"]
+            odds = pending_combat["odds"]
+
             user = User.query.filter(
                 db.func.lower(User.username) == username.lower()
             ).first()
-            odds = get_user_odds(username, roll_type)
 
-            if odds is None:
+            if not user:
                 result = "user not found. Please raise a General Support ticket in #support-and-submissions"
+
+                # Clear stale pending combat
+                session.pop("pending_combat", None)
+
             else:
-                user_odds = {
-                    "attack": get_user_odds(username, "attack"),
-                    "defend": get_user_odds(username, "defend")
-                }
-                # Step 1: Generate random value
-                random_value = round(random.random(), 4)
+                # ─────────────────────────────────────────────────────────────
+                # Resolve Draw from the Earth
+                # ─────────────────────────────────────────────────────────────
 
-                # Step 2: Venin Check
-                if user.venin_stage in VENIN_STAGES:
-                    draw_choice = request.form.get("draw_choice")
+                if draw_choice == "Yes":
 
-                    if draw_choice is None:
-                        draw_prompt = True
+                    draw_rate = get_draw_rate(user)
+
+                    # This is a SEPARATE roll for whether the Earth answers.
+                    # It is NOT the combat random_value.
+                    draw_random = random.random() * 100
+
+                    if draw_random < draw_rate:
+                        draw_result = "Success"
+                        draw_bonus = 15
+
+                        # Successful Earth draws increase future draw chance.
+                        user.draw_successes = (user.draw_successes or 0) + 1
+                        db.session.commit()
+
                     else:
-                        if draw_choice == "yes":
-                            draw_rate = get_draw_rate(user)
-                            draw_random = round(random.random(), 4)
+                        draw_result = "Fail"
 
-                            if draw_random*100 < draw_rate:
-                                draw_result = "Success"
-                                draw_bonus = 15
+                # ─────────────────────────────────────────────────────────────
+                # Final combat resolution
+                # ─────────────────────────────────────────────────────────────
 
-                                user.draw_successes += 1
-                                db.session.commit()
-                            else:
-                                draw_result = "Fail"
+                final_odds = odds + draw_bonus
 
-                # Step 2: Determine success
-                result = "Success" if random_value < ((draw_bonus+odds) / 100) else "Fail"
+                result = (
+                    "Success"
+                    if random_value < final_odds
+                    else "Fail"
+                )
 
-                # Step 3: If success, add random_value to odds
+                # If the combat succeeded, improve the user's normal odds.
                 if result == "Success":
                     update_odds(username, roll_type, random_value)
-                else:
-                    final_odds = odds  # No change on fail
 
-                random_value*=100
-                # 🔔 Send result to Discord
-                send_to_discord(username, roll_type, result, random_value)
-    
-    return render_template("index.html",
-                           result=result,
-                           username=username,
-                           roll_type=roll_type,
-                           random_value=random_value,
-                           final_odds=final_odds,
-                           user_odds=user_odds,
-                           draw_prompt=draw_prompt,
-                           draw_result=draw_result)
+                # Current odds after the combat result
+                user_odds = {
+                    "attack": get_user_odds(username, "Attack"),
+                    "defend": get_user_odds(username, "Defend")
+                }
+
+                # Discord ONLY happens after the final result is known.
+                send_to_discord(
+                    username,
+                    roll_type,
+                    result,
+                    random_value
+                )
+
+                # The pending roll has now been resolved.
+                session.pop("pending_combat", None)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # FIRST STEP: Generate a new Attack / Defend combat roll
+    # ─────────────────────────────────────────────────────────────────────────
+    elif request.method == "POST":
+
+        roll_type = request.form.get("roll_type")
+        username = request.form.get("username", "").strip()
+
+        if username and roll_type in ("Attack", "Defend"):
+
+            user = User.query.filter(
+                db.func.lower(User.username) == username.lower()
+            ).first()
+
+            odds = get_user_odds(username, roll_type)
+
+            if odds is None or not user:
+
+                result = (
+                    "user not found. Please raise a General Support "
+                    "ticket in #support-and-submissions"
+                )
+
+            else:
+
+                user_odds = {
+                    "attack": get_user_odds(username, "Attack"),
+                    "defend": get_user_odds(username, "Defend")
+                }
+
+                # ─────────────────────────────────────────────────────────────
+                # Generate the combat roll ONCE.
+                # This exact value will be used even if the Venin draws.
+                # ─────────────────────────────────────────────────────────────
+
+                random_value = random.random() * 100
+
+                # ─────────────────────────────────────────────────────────────
+                # VENIN CHECK
+                # ─────────────────────────────────────────────────────────────
+
+                if user.venin_stage in VENIN_STAGES:
+
+                    # Store the combat roll so the next POST can retrieve it.
+                    session["pending_combat"] = {
+                        "username": username,
+                        "roll_type": roll_type,
+                        "random_value": random_value,
+                        "odds": odds
+                    }
+
+                    # Do NOT resolve the combat yet.
+                    # Do NOT send Discord yet.
+                    pending_draw = True
+
+                else:
+
+                    # Non-Venin characters resolve immediately.
+                    final_odds = odds
+
+                    result = (
+                        "Success"
+                        if random_value < final_odds
+                        else "Fail"
+                    )
+
+                    if result == "Success":
+                        update_odds(username, roll_type, random_value)
+
+                    user_odds = {
+                        "attack": get_user_odds(username, "Attack"),
+                        "defend": get_user_odds(username, "Defend")
+                    }
+
+                    # Non-Venin result is final, so Discord can be sent now.
+                    send_to_discord(
+                        username,
+                        roll_type,
+                        result,
+                        random_value
+                    )
+
+        else:
+            result = "Please enter a username and choose Attack or Defend."
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GET / render page
+    # ─────────────────────────────────────────────────────────────────────────
+
+    return render_template(
+        "index.html",
+        result=result,
+        username=username,
+        roll_type=roll_type,
+        random_value=random_value,
+        odds=odds,
+        final_odds=final_odds,
+        user_odds=user_odds,
+        pending_draw=pending_draw,
+        draw_choice=draw_choice,
+        draw_result=draw_result
+    )
 
 # ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
 if __name__ == "__main__":
