@@ -376,7 +376,15 @@ def admin_dashboard():
         return redirect(url_for('admin_login'))
 
     users = User.query.order_by(User.username).all()
-    return render_template('admin_dashboard.html', users=users)
+    draw_rates = {
+        user.id: get_draw_rate(user)
+        for user in users
+    }
+    
+    return render_template('admin_dashboard.html',
+        users=users,
+        draw_rates=draw_rates,
+        venin_stages=VENIN_STAGES)
 
 @app.route('/admin/add_user', methods=['GET', 'POST'])
 def add_user():
@@ -514,24 +522,75 @@ def increment_age():
     return redirect(url_for('admin_dashboard'))
 
 
+
 @app.route('/admin/edit_user/<int:user_id>', methods=['POST'])
 def edit_user(user_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
     user = User.query.get_or_404(user_id)
 
-    # Get updated fields from form
-    user.member_group = request.form['member_group']
-    user.graduate = request.form['graduate']
-    user.leadership = request.form['leadership']
-    user.frontlines = request.form['frontlines']
-    user.disability = request.form['disability']
-    user.magic_type = request.form['magic_type']
-    user.fighter_type = request.form['fighter_type']
+    # ── Read and validate the Venin stage ─────────────────────────────
+    allowed_stages = ["N/A"] + list(VENIN_STAGES.keys())
+    new_stage = request.form.get("venin_stage", "N/A").strip()
 
-    # Keep existing (non-editable) values
+    if new_stage not in allowed_stages:
+        flash("Invalid Venin stage.", "error")
+        return redirect(url_for('admin_dashboard'))
+
+    # Normalize existing stage for older database records.
+    old_stage = user.venin_stage or "N/A"
+
+    # Reset Earth Draws whenever the stage changes.
+    if new_stage != old_stage:
+        user.draw_successes = 0
+
+    user.venin_stage = new_stage
+
+    # ── Update editable combat fields ──────────────────────────────────
+    allowed_groups = [
+        "Rider", "Flier", "Infantry", "Healer",
+        "Scribe", "Citizen", "Outlier"
+    ]
+    allowed_yes_no = ["yes", "no"]
+    allowed_magic = ["Mental", "Physical", "Elemental", "None"]
+    allowed_fighters = [
+        "Offensive", "Defensive", "Balanced", "Non-combatant"
+    ]
+
+    member_group = request.form.get("member_group")
+    graduate = request.form.get("graduate")
+    leadership = request.form.get("leadership")
+    frontlines = request.form.get("frontlines")
+    disability = request.form.get("disability")
+    magic_type = request.form.get("magic_type")
+    fighter_type = request.form.get("fighter_type")
+
+    if (
+        member_group not in allowed_groups
+        or graduate not in allowed_yes_no
+        or leadership not in allowed_yes_no
+        or frontlines not in allowed_yes_no
+        or disability not in allowed_yes_no
+        or magic_type not in allowed_magic
+        or fighter_type not in allowed_fighters
+    ):
+        flash("Invalid character settings.", "error")
+        return redirect(url_for('admin_dashboard'))
+
+    user.member_group = member_group
+    user.graduate = graduate
+    user.leadership = leadership
+    user.frontlines = frontlines
+    user.disability = disability
+    user.magic_type = magic_type
+    user.fighter_type = fighter_type
+
+    # Keep existing non-editable values.
     age = user.age
     pre_war_status = user.pre_war_status
 
-    # === Recompute Odds ===
+    # ── Recalculate Attack and Defend base odds ───────────────────────
     base_odds = {
         "Rider": (65, 65),
         "Flier": (60, 60),
@@ -542,23 +601,48 @@ def edit_user(user_id):
         "Outlier": (50, 50),
     }
 
-    attack_odds, defend_odds = base_odds.get(user.member_group, (0.5, 0.5))
+    attack_odds, defend_odds = base_odds[user.member_group]
 
-    if user.graduate == "yes": attack_odds += 5; defend_odds += 5
-    if user.leadership == "yes": attack_odds += 2; defend_odds += 2
-    if user.frontlines == "yes": attack_odds += 5; defend_odds += 5
-    if user.disability == "yes": attack_odds -= 3; defend_odds -= 3
+    if user.graduate == "yes":
+        attack_odds += 5
+        defend_odds += 5
 
-    if user.fighter_type == 'Offensive': attack_odds += 2; defend_odds -= 5
-    if user.fighter_type == 'Defensive': defend_odds += 2; attack_odds -= 5
-    if user.fighter_type == 'Non-combatant': attack_odds -= 10; defend_odds -= 10
+    if user.leadership == "yes":
+        attack_odds += 2
+        defend_odds += 2
 
-    if user.magic_type == "Mental": defend_odds += 2
-    if user.magic_type == "Elemental": attack_odds += 2
-    if user.magic_type == "Physical": defend_odds += 1; attack_odds += 1
+    if user.frontlines == "yes":
+        attack_odds += 5
+        defend_odds += 5
 
-    if pre_war_status == "Trained": defend_odds += 2; attack_odds += 2
-    if pre_war_status == "Untrained": defend_odds -= 1; attack_odds -= 1
+    if user.disability == "yes":
+        attack_odds -= 3
+        defend_odds -= 3
+
+    if user.fighter_type == "Offensive":
+        attack_odds += 2
+        defend_odds -= 5
+    elif user.fighter_type == "Defensive":
+        attack_odds -= 5
+        defend_odds += 2
+    elif user.fighter_type == "Non-combatant":
+        attack_odds -= 10
+        defend_odds -= 10
+
+    if user.magic_type == "Mental":
+        defend_odds += 2
+    elif user.magic_type == "Elemental":
+        attack_odds += 2
+    elif user.magic_type == "Physical":
+        attack_odds += 1
+        defend_odds += 1
+
+    if pre_war_status == "Trained":
+        attack_odds += 2
+        defend_odds += 2
+    elif pre_war_status == "Untrained":
+        attack_odds -= 1
+        defend_odds -= 1
 
     if age < 40:
         attack_odds += 1
@@ -567,13 +651,21 @@ def edit_user(user_id):
         attack_odds -= 2
         defend_odds += 1
 
-    # Clamp odds between 10 and 90
+    # Clamp base odds between 10 and 90.
     user.attack_odds = min(max(attack_odds, 10), 90)
     user.defend_odds = min(max(defend_odds, 10), 90)
 
+    # Earth Draws is deliberately NOT read from the form.
+    # Only the automatic stage-change reset can modify it here.
+
     db.session.commit()
-    flash(f'{user.username} updated successfully!', 'success')
+
+    flash(
+        f'{user.username} updated successfully!',
+        'success'
+    )
     return redirect(url_for('admin_dashboard'))
+
 
 # ─── Run Flask Only (Discord Bot Disabled) ─────────────────────────────────────
 if __name__ == "__main__":
