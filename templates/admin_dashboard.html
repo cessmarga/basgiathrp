@@ -15,10 +15,26 @@
     <title>Admin Panel</title>
 
     <style>
-        .admin-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            margin-bottom: 30px;
+        .admin-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: #eaeaea;
+        }
+        
+        /* Keep the username visible while scrolling horizontally */
+        .admin-table th:first-child,
+        .admin-table td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: #fff;
+        }
+        
+        /* Keep the top-left header cell above the other sticky cells */
+        .admin-table thead th:first-child {
+            z-index: 6;
+            background: #eaeaea;
         }
 
         .admin-table {
